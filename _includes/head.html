@@ -5,8 +5,61 @@
   <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.3/build/grids-responsive-min.css">
   <link rel="stylesheet" href="{{ 'assets/styles.css' | relative_url }}">
 
+
   {%- seo -%}
   {%- feed_meta -%}
 
   {%- include custom-head.html -%}
+
+<script>
+  var language = navigator.language || navigator.languages[0];
+  var cookieText = "";
+
+  if (language === "zh-CN") {
+    cookieText = "本网站使用Cookies 您可阅读我们的隐私政策";
+  } else if (language === "zh-TW") {
+    cookieText = "本網站使用Cookies 您可以閱讀我們的隱私權政策";
+  } else if (language === "ja") {
+    cookieText = "このウェブサイトはCookiesを使用しています プライバシーポリシーはこちらをご覧ください";
+  } else if (language === "fr") {
+    cookieText = "Ce site web utilise des Cookies Vous pouvez consulter notre politique de confidentialité";
+  } else if (language === "es") {
+    cookieText = "Este sitio web utiliza Cookies Puede leer nuestra Política de privacidad";
+  } else {
+    cookieText = "This website uses Cookies You can read our Privacy Policy";
+  }
+
+  window.onload = function() {
+    // 检查是否已经设置了 cookies 同意许可的标志
+    if (!document.cookie.match(/cookiesAgreed=true/)) {
+      // 弹出同意许可的提示框
+      if (confirm(cookieText)) {
+        function setCookie(name, value, days) {
+          var expires = "";
+          if (days) {
+            var date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            expires = "; expires=" + date.toUTCString();
+          }
+          document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+
+        setCookie("cookiesAgreed", true, 365); // 设置 cookies 同意许可的标志，过期时间为 1 年
+      } else {
+        // 用户拒绝同意许可，不记录 cookies
+        document.cookie = "cookiesAgreed=reject; expires=Wed, 31 Dec 2025 23:59:59 GMT; path=/";
+      }
+    } else {
+      // 已经记录的 cookies，不弹出本弹窗
+      var cookieValue = document.cookie.match(/cookiesAgreed=([^;]*)/)[1];
+      if (cookieValue === "reject") {
+        // 用户之前拒绝同意许可，不记录 cookies
+        console.log("An unrecorded cookie visitor");
+      } else if (cookieValue === "true") {
+        // 用户之前同意许可，记录 cookies
+        console.log("A record of cookie visitors");
+      }
+    }
+  };
+</script>
 </head>

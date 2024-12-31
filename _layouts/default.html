@@ -3,6 +3,12 @@
 
   {% include head.html %}
 
+<head>
+  <meta charset="UTF-8">
+  <title>{{ page.title | default: site.title }}</title>
+  <link rel="stylesheet" href="{{ '/assets/css/lightbox.css' | relative_url }}">
+</head>
+
   <body>
 
     <div class="container pure-g">
@@ -31,7 +37,10 @@
     </div>
 
     <script async src="https://use.fontawesome.com/releases/v5.0.12/js/all.js"></script>
-
+	
+    <script src="{{ '/assets/js/jquery-3.7.1.min.js' | relative_url }}"></script>
+	
+    <script src="{{ '/assets/js/lightbox.js' | relative_url }}"></script>
     {%- include scroll.html -%}
 
     {%- if page.math -%}
