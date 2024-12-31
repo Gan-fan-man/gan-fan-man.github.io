@@ -7,6 +7,6 @@
 - type: categories
   title: Categories
   url: /categories/
-- type: collections
-  title: Collections
-  url: /collections/
+#- type: collections
+#  title: Collections
+#  url: /collections/
