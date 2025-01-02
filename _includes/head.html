@@ -6,6 +6,24 @@
   <link rel="stylesheet" href="{{ 'assets/styles.css' | relative_url }}">
 
 
+<link href="/assets/css/video-js.min.css" rel="stylesheet" />
+<script src="/assets/js/video.min.js"></script>
+<script>
+	videojs.options.autoplay = false;
+	videojs.options.loop = false;
+	videojs.options.controls = true;
+	
+	var players = videojs.players;
+	
+	Object.keys(players).forEach(function (key) {
+		players[key] = videojs(players[key].el_, {
+		preload: 'auto',
+		loop: true
+	});
+});
+</script>
+
+
   {%- seo -%}
   {%- feed_meta -%}
 
