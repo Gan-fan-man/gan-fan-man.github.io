@@ -263,11 +263,6 @@
                     isScaling = false; // 清除滚轮缩放事件标志
                 }, 100); // 100ms 后清除标志
             });
-
-		
-		
-		
-		
         };
 
         // Show overlay and lightbox. If the image is part of a set, add siblings to album array.
