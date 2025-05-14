@@ -447,8 +447,8 @@
              */
             setTimeout(function () {
                 self.$overlay
-                .width($(document).width() * 2) // width=body*2
-                .height($(document).height() * 2); // height=body*2
+                .width($(document).width() * 1) // width=body*1
+                .height($(document).height() * 1); // height=body*1
 
             }, 0);
         };
