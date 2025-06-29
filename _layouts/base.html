@@ -1,0 +1,41 @@
+<!--This page defines the fundamental layout for all pages except post and home pages.
+It establishes the core structure, including meta-information, header with navigation and social links, and the main content area.
+Associated CSS styles are managed within the respective page files.-->
+{%- include head.html -%}
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
+    <link rel="stylesheet" href="{{ '/assets/styles.css' | relative_url }}">
+</head>
+<body>
+    <header class="fixed-header">
+        <div class="header-left">
+            <img src="{{ '/avatar.jpeg' | relative_url }}" alt="My Avatar" class="header-avatar">
+            <nav class="header-nav">
+                <ul>
+                    <li><a href="{{ '/' | relative_url }}">{{ site.title }}</a></li>
+                    <li><a href="{{ '/about/' | relative_url }}">About</a></li>
+                    <li><a href="{{ '/tool/' | relative_url }}">Tools</a></li>
+                    <li><a href="{{ '/post/' | relative_url }}">Posts</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="header-social">
+            {% if site.social_links %}
+                {% for link in site.social_links %}
+                    <a href="{{ link.url }}" target="_blank" title="{{ link.name }}">
+                        <i class="fab {{ link.icon }}"></i>
+                    </a>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </header>
+    <main>
+        {{ content }}
+        {%- include content.html -%}
+    </main>
+</body>
+</html>

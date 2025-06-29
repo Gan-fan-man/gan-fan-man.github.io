@@ -1,0 +1,30 @@
+---
+layout: page
+---
+
+<div class="tool-page-container">
+    {{ content }}
+</div>
+
+<style>
+    /* Here you can define CSS styles specific to the layout of tool.html, such as the tool page container */
+    .tool-page-container {
+        width: 80%;
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: var(--tool-content-bg);
+        border-radius: 8px;
+        box-shadow: var(--tool-content-shadow);
+        box-sizing: border-box;
+    }
+
+    /* Responsive Adjustment */
+    @media (max-width: 768px) {
+        .tool-page-container {
+            width: 95%;
+            margin: 15px auto;
+            padding: 15px;
+        }
+    }
+</style>

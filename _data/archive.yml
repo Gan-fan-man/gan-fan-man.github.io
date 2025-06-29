@@ -1,0 +1,9 @@
+- type: dates
+  title: Dates
+  url: /post/dates/
+- type: tags
+  title: Tags
+  url: /post/tags/
+- type: categories
+  title: Categories
+  url: /post/categories/

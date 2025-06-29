@@ -1,0 +1,74 @@
+<!--This page as the homepage template, dynamically displaying a background image slideshow and providing navigation links.-->
+{% include head.html %}
+
+<body>
+  <div id="container">
+    <div id="background-container">
+    </div>
+    <div id="content-container">
+      <h1 class="title">{{ site.title }}</h1>
+      <a href="tool">
+        <div class="div-block-1"><span class="text">TOOL</span></div>
+      </a>
+      <a href="post">
+        <div class="div-block-2"><span class="text">POST</span></div>
+      </a>
+    </div>
+  </div>
+
+  <script>
+    // Array to store image paths for the background slideshow.
+    // Populated dynamically from Jekyll's site data.
+    const images = [
+      {% for image_path in site.data.images.home_backgrounds %}
+        '{{ image_path }}'{% unless forloop.last %},{% endunless %}
+      {% endfor %}
+    ];
+
+    // Get the background container element.
+    const backgroundContainer = document.getElementById('background-container');
+
+    // Initialize the current image index for the slideshow.
+    let currentImageIndex = 0;
+
+    // Loop through each image path and create a corresponding background element.
+    images.forEach((image, index) => {
+      // Create a new div element for the background image.
+      const backgroundImageElement = document.createElement('div');
+      // Add a class for styling.
+      backgroundImageElement.classList.add('background-image');
+      // Set the background image URL.
+      backgroundImageElement.style.backgroundImage = `url(${image})`;
+      // Mark the first image as active initially.
+      if (index === 0) {
+        backgroundImageElement.classList.add('active');
+      }
+      // Append the image element to the background container.
+      backgroundContainer.appendChild(backgroundImageElement);
+    });
+
+    // Function to switch the active background image.
+    function switchBackgroundImage() {
+      // Get all background image elements.
+      const backgroundImageElements = backgroundContainer.children;
+      // Get the currently active image.
+      const currentImage = backgroundImageElements[currentImageIndex];
+      // Generate a random index for the next image.
+      const nextImageIndex = Math.floor(Math.random() * backgroundImageElements.length);
+      // Get the next image element.
+      const nextImage = backgroundImageElements[nextImageIndex];
+
+      // Remove 'active' class from the current image.
+      currentImage.classList.remove('active');
+      // Add 'active' class to the next image.
+      nextImage.classList.add('active');
+
+      // Update the current image index.
+      currentImageIndex = nextImageIndex;
+    }
+
+    // Set an interval to switch background images every 5 seconds.
+    setInterval(switchBackgroundImage, 10000);
+  </script>
+</body>
+</html>

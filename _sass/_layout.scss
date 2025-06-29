@@ -1,0 +1,99 @@
+/*
+ * File: _layout.scss
+ * Description: This file contains styles for managing the structural hierarchy of the site,
+ * including container layouts, header and footer positioning, and responsive adjustments for sidebars and content.
+ */
+
+// Importing variables for consistent styling.
+@use "variables" as *;
+
+// Basic container styles, resetting default padding and margin.
+.container {
+  padding: 0;
+  margin: 0;
+}
+
+// Styles for the home page header, adjusting its top and bottom margins.
+.home-header {
+  margin-top: -1em;
+  margin-bottom: var(--spacer-3);
+}
+
+// Styles for the main content area, including padding, auto margins for centering, and minimum height.
+.content {
+  padding-top: var(--spacer-2);
+  padding-left: var(--spacer-2);
+  padding-right: var(--spacer-2);
+  margin-left: auto;
+  margin-right: auto;
+  min-height: 100vh;
+}
+
+// Styles for the left sidebar, enabling flex display, padding, background, and full viewport height.
+.sidebar-left {
+  display: flex;
+  padding: var(--spacer);
+  background: center / cover;
+  height: 100vh;
+}
+
+// Styles for the footer, providing top and bottom margins.
+footer {
+  margin-top: var(--spacer-3);
+  margin-bottom: var(--spacer-3);
+}
+
+// Media query for medium-width screens and larger.
+@media (min-width: $md-width) {
+  // Adjusts content padding and left margin for larger screens.
+  .content {
+    padding-top: var(--spacer-3);
+    padding-left: var(--spacer-3);
+    padding-right: var(--spacer-3);
+    margin-left: 25%;
+  }
+
+  // Fixes the left sidebar position for larger screens.
+  .sidebar-left {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+  }
+
+  // Adjusts the top margin of the home header for larger screens.
+  .home-header {
+    margin-top: -2em;
+  }
+}
+
+// Media query for large-width screens and larger.
+@media (min-width: $lg-width) {
+  // Displays the right sidebar on large screens.
+  .sidebar-right {
+    display: block;
+  }
+}
+
+// Media query for screens up to large width.
+@media (max-width: $lg-width) {
+  // Hides the right sidebar on screens smaller than large width.
+  .sidebar-right {
+    display: none;
+  }
+}
+
+// Media query for screens up to medium width.
+@media (max-width: $md-width) {
+  // Sets content width to 100% for smaller screens.
+  .content {
+    width: 100%;
+  }
+}
+
+// Media query for screens between medium and large width.
+@media (min-width: $md-width) and (max-width: $lg-width) {
+  // Sets content width to 75% for tablet-sized screens.
+  .content {
+    width: 75%;
+  }
+}

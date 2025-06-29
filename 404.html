@@ -1,0 +1,171 @@
+---
+layout: page
+title: "404: Page not found"
+permalink: 404.html
+---
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Styles for the body, setting basic typography, background, and layout */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            text-align: center;
+            flex-direction: column;
+        }
+
+        /* Styles for the main container of the 404 content */
+        .container-404 {
+            background-color: #ffffff;
+            padding: 40px 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 90%;
+            box-sizing: border-box;
+            /* Applies a fade-in animation on load */
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        /* Keyframes for the fade-in animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Styles for the 404 icon */
+        .icon-404 {
+            font-size: 5em;
+            color: #ff6b6b;
+            margin-bottom: 20px;
+            /* Applies a bouncing animation */
+            animation: bounce 1.5s infinite ease-in-out;
+        }
+
+        /* Keyframes for the bouncing animation of the icon */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        /* Styles for the main heading (404 title) */
+        h1 {
+            font-size: 2.8em;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        /* Styles for paragraph text, specifically for the error message */
+        p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: #555;
+        }
+
+        /* Styles for the home button */
+        .home-button {
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.1em;
+            /* Smooth transition for hover effects */
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        /* Hover effect for the home button */
+        .home-button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        /* Active (click) effect for the home button */
+        .home-button:active {
+            transform: translateY(0);
+        }
+
+        /* Styles for the footer section, if present */
+        .footer-404 {
+            margin-top: 50px;
+            font-size: 0.85em;
+            color: #999;
+        }
+
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 600px) {
+            .container-404 {
+                padding: 30px 20px;
+                width: 95%;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            .icon-404 {
+                font-size: 4em;
+            }
+            p {
+                font-size: 1em;
+            }
+            .home-button {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-404">
+        <i class="fas fa-exclamation-triangle icon-404"></i>
+
+        <h1 id="title"></h1>
+        <p class="lead" id="message"></p>
+
+        <a href="{{ '/' | relative_url }}" class="home-button" id="homeButtonText"></a>
+    </div>
+
+    <script>
+        // Detects the user's preferred language from the browser
+        const lang = navigator.language || navigator.userLanguage;
+
+        // Get references to the HTML elements that will display dynamic text
+        const titleElement = document.getElementById('title');
+        const messageElement = document.getElementById('message');
+        const homeButtonElement = document.getElementById('homeButtonText');
+
+        // Sets the text content based on the detected language
+        if (lang.startsWith('zh')) {
+            // Chinese language settings
+            titleElement.innerHTML = '404: 页面未找到';
+            messageElement.innerHTML = '该页面不存在 请检查路径是否输入正确';
+            homeButtonElement.textContent = '返回首页';
+        } else if (lang.startsWith('ja')) {
+            // Japanese language settings
+            titleElement.innerHTML = '404: ページが見つかりません';
+            messageElement.innerHTML = 'このページは存在しません。パスが正しく入力されているかご確認ください。';
+            homeButtonElement.textContent = 'ホームページに戻る';
+        } else {
+            // Default English language settings
+            titleElement.innerHTML = '404: Page not found';
+            messageElement.innerHTML = 'The page does not exist. Please check that the path has been entered correctly.';
+            homeButtonElement.textContent = 'Head back home';
+        }
+    </script>
+</body>
+
+</html>

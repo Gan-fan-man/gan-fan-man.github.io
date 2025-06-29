@@ -1,0 +1,43 @@
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <link rel="stylesheet" href="{{ 'assets/styles.css' | relative_url }}">
+  <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.3/build/pure-min.css" integrity="sha384-cg6SkqEOCV1NbJoCu11+bm0NvBRc8IYLRGXkmNrqUBfTjmMYwNKPWBTIKyw9mHNJ" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.3/build/grids-responsive-min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <link rel="stylesheet" href="/assets/css/mahoubox.css" />
+  <link rel="stylesheet" href="/assets/css/video-js.min.css" />
+
+  <script src="/assets/js/jquery-3.7.1.min.js"></script>
+  <script src="/assets/js/mahoubox.js"></script>
+  <script src="/assets/js/video.min.js"></script>
+  <script>
+    // Set default options for all Video.js players.
+    videojs.options.autoplay = false;
+    videojs.options.loop = false;
+    videojs.options.controls = true;
+    
+    // Get all Video.js players initialized on the page.
+    var players = videojs.players;
+    
+    // Iterate through each player and apply specific settings.
+    Object.keys(players).forEach(function (key) {
+      players[key] = videojs(players[key].el_, {
+        preload: 'auto',
+        loop: true
+      });
+    });
+  </script>
+
+  {%- seo -%}
+  {%- feed_meta -%}
+
+  {%- include cookie.html -%}
+  {%- include custom-head.html -%}
+  
+  {% if page.math %}
+	{%- include mathjax.html -%}
+  {% endif %}
+
+  </head>

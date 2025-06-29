@@ -1,0 +1,63 @@
+/*
+ * File: _pagination.scss
+ * Description: This file provides styles for blog pagination,
+ * offering a lightweight HTML structure with distinct styles for previous and next post links.
+ */
+
+// Importing variables for consistent styling.
+@use "variables" as *;
+
+// Styles for the main pagination container.
+.pagination {
+  margin: 0 -1.5rem;
+  color: var(--gray-500);
+  text-align: center;
+}
+
+// Base styles for individual pagination items, which can be either spans or anchor links.
+.pagination-item {
+  display: block;
+  padding: var(--spacer);
+  text-decoration: none;
+  border: solid var(--border-color);
+  border-width: 1px 0;
+
+  // Adjusts margin for the first pagination item.
+  &:first-child {
+    margin-bottom: -1px;
+  }
+}
+
+// Provides a hover state specifically for linked pagination items (anchor tags).
+a.pagination-item:hover {
+  background-color: var(--border-color);
+}
+
+// Media query for small-width screens and larger.
+@media (min-width: $sm-width) {
+  // Adjusts pagination margin and height for larger screens.
+  .pagination {
+    margin: var(--spacer-3) 0;
+    height: calc(var(--body-font-size) * var(--body-line-height) + var(--spacer) * 2);
+  }
+
+  // Styles for pagination items on larger screens, including float, width, and border.
+  .pagination-item {
+    float: left;
+    width: 50%;
+    border-width: 1px;
+
+    // Applies border-radius to the top-left and bottom-left of the first item.
+    &:first-child {
+      margin-bottom: 0;
+      border-top-left-radius: var(--border-radius);
+      border-bottom-left-radius: var(--border-radius);
+    }
+    // Applies border-radius to the top-right and bottom-right of the last item.
+    &:last-child {
+      margin-left: -1px;
+      border-top-right-radius: var(--border-radius);
+      border-bottom-right-radius: var(--border-radius);
+    }
+  }
+}

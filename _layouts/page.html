@@ -1,0 +1,317 @@
+---
+layout: base
+---
+
+<!--This page sets the foundational styles for all pages except post and home.
+It provides styling for tool, tool_home, about, and 404 pages, encompassing general element styles,
+header, footer, and specific tool-related components for a consistent visual presentation.-->
+
+<style>
+/* Resets the box model to ensure consistent sizing across elements */
+* {
+  box-sizing: border-box;
+}
+
+/* Styles for the main body of the page */
+body {
+  margin: 0;
+  /* Provides space for the fixed header */
+  padding-top: 80px;
+  font-family: var(--body-font);
+  font-size: var(--body-font-size);
+  line-height: var(--body-line-height);
+  color: var(--body-color);
+  background-color: var(--tool-bg);
+  /* Prevents text scaling on mobile devices */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  /* Flexbox for full-height layout */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Styles for anchor links */
+a {
+  color: var(--link-color);
+
+  /* Styles for hover and focus states for accessibility */
+  &:hover,
+  &:focus {
+    color: var(--link-hover-color);
+  }
+
+  strong {
+    color: inherit;
+  }
+}
+
+/* Styles for images */
+img {
+  display: block;
+  max-width: 100%;
+  margin-bottom: var(--spacer);
+  border-radius: var(--border-radius);
+}
+
+/* Styles for tables */
+table {
+  margin-bottom: 1rem;
+  width: 100%;
+  border: 0 solid var(--border-color);
+  border-collapse: collapse;
+}
+
+/* Styles for table cells and headers */
+td,
+th {
+  padding: .25rem .5rem;
+  border-color: inherit;
+  border-style: solid;
+  border-width: 0;
+  border-bottom-width: 1px;
+}
+
+/* Aligns table headers to the left */
+th {
+  text-align: left;
+}
+
+/* Styles for table head row headers */
+thead th {
+  border-bottom-color: currentColor;
+}
+
+/* Styles for marked text */
+mark {
+  padding: .15rem;
+  background-color: var(--yellow-100);
+  border-radius: .125rem;
+}
+
+/* Styles for the fixed header at the top of the page */
+.fixed-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    /* Defines the height of the header */
+    height: 70px;
+    background-color: var(--header-bg);
+    box-shadow: 0 2px 5px var(--header-shadow);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+/* Styles for the left section of the header */
+.header-left {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+}
+
+/* Styles for the avatar image in the header */
+.header-avatar {
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    margin-right: 20px;
+    object-fit: cover;
+}
+
+/* Styles for the navigation list within the header */
+.header-nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+/* Styles for individual navigation list items */
+.header-nav li {
+    margin-right: 20px;
+}
+
+/* Styles for navigation links */
+.header-nav a {
+    text-decoration: none;
+    color: var(--nav-link-color);
+    font-size: 1.1em;
+    transition: color 0.3s ease;
+}
+
+/* Hover effect for navigation links */
+.header-nav a:hover {
+    color: var(--link-hover-color) !important;
+}
+
+/* Styles for the social media icons in the header */
+.header-social {
+    display: flex;
+    align-items: center;
+}
+
+/* Styles for individual social media links */
+.header-social a {
+    text-decoration: none;
+    color: var(--nav-link-color);
+    font-size: 1.3em;
+    margin-left: 20px;
+    transition: color 0.3s ease;
+}
+
+/* Hover effect for social media links */
+.header-social a:hover {
+    color: var(--link-color);
+}
+
+/* Styles for the main content area */
+main {
+    flex-grow: 1;
+    padding: 20px;
+    /* Adds extra space above the first content block */
+    padding-top: 40px;
+}
+
+/* Styles for the footer section */
+.footer {
+    text-align: center;
+    padding: 20px;
+    background-color: var(--footer-bg);
+    color: var(--footer-color);
+    font-size: 0.9em;
+    border-top: 1px solid var(--border-color);
+    margin-top: 20px;
+}
+
+/* Styles for generic content blocks used in tool pages */
+.tool-content-block {
+    background-color: var(--tool-content-bg);
+    color: var(--tool-content-color);
+    box-shadow: var(--tool-content-shadow);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+/* Styles for input fields within tool blocks */
+.tool-input {
+    background-color: var(--tool-input-bg);
+    color: var(--tool-input-color);
+    border: 1px solid var(--tool-input-border);
+    padding: 10px;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+}
+
+/* Styles for buttons within tool blocks */
+.tool-button {
+    background-color: var(--tool-button-bg);
+    color: var(--tool-button-color);
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Hover effect for tool buttons */
+.tool-button:hover {
+    background-color: var(--tool-button-hover-bg);
+}
+
+/* Container for tool blocks on the tool home page */
+.tools-container {
+    flex-grow: 1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    width: 80%;
+    margin: 20px auto;
+    padding: 0;
+    box-sizing: border-box;
+    align-content: flex-start;
+    /* Defines horizontal gap between tool blocks */
+    gap: 2%;
+    padding: 20px 0;
+}
+
+/* Styles for individual tool blocks on the tool home page */
+.tool-block {
+    /* Calculates width for 4 columns with 2% gap */
+    flex: 0 0 calc((100% - 3 * 2%) / 4);
+    margin-bottom: 10vh;
+    background-color: var(--tool-block-bg);
+    opacity: var(--tool-block-opacity);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    padding: 20px;
+    text-decoration: none;
+    color: var(--tool-block-color);
+    font-size: 1.6em;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease, opacity 0.3s ease, color 0.3s ease;
+    cursor: pointer;
+    /* Defines block height */
+    height: 20vh;
+    min-height: 130px;
+    max-height: 220px;
+}
+
+/* Hover effects for tool blocks */
+.tool-block:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    background-color: var(--tool-block-hover-bg);
+    opacity: var(--tool-block-hover-opacity);
+    color: var(--link-color);
+}
+
+/* Responsive adjustments for different screen sizes */
+@media (max-width: 992px) {
+    /* 3-column layout on medium screens */
+    .tool-block {
+        flex: 0 0 calc((100% - 2 * 2%) / 3);
+        height: 18vh;
+        min-height: 120px;
+        max-height: 200px;
+        font-size: 1.5em;
+    }
+}
+
+@media (max-width: 768px) {
+    /* 2-column layout on smaller screens */
+    .tool-block {
+        flex: 0 0 calc((100% - 1 * 2%) / 2);
+        font-size: 1.4em;
+        height: 16vh;
+        min-height: 110px;
+        max-height: 180px;
+    }
+}
+
+@media (max-width: 480px) {
+    /* 2-column layout on extra small screens */
+    .tool-block {
+        flex: 0 0 calc((100% - 1 * 2%) / 2);
+        font-size: 1.3em;
+        height: 15vh;
+        min-height: 100px;
+        max-height: 160px;
+    }
+}
+</style>
+
+<article class="page">
+  {{ content }}
+</article>

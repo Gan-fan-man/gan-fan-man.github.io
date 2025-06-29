@@ -1,0 +1,115 @@
+/*
+ * File: _home-header.scss
+ * Description: This file defines styles for the home page header section,
+ * including background image containers, title styling, and interactive content blocks.
+ */
+
+// Importing variables for consistent styling.
+@use "variables" as *;
+
+// Main container for the home header, defining its full viewport height and relative positioning.
+#container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+}
+
+// Container for the background image, setting its positioning and sizing.
+#background-container {
+  background-position: center;
+  background-size: 100% 100%;
+}
+
+// Container for the main content, positioned above the background.
+#content-container {
+  position: relative;
+  z-index: 1;
+}
+
+// Styles for the main title, positioned centrally with a custom font size and text effects.
+.title {
+  position: absolute;
+  top: 13vh;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 5vw;
+  color: #101848;
+  text-shadow: -2px 0px 0px #84A0FF, 2px 0px 0px #84A0FF, 0px -2px 0px #84A0FF, 0px 2px 0px #84A0FF;
+  -webkit-text-stroke: 2px #84A0FF;
+}
+
+// Styles for the first interactive content block, positioned on the left side of the screen.
+.div-block-1 {
+  position: absolute;
+  top: 55vh;
+  left: 26%;
+  right: 54%;
+  background-color: rgba(160, 200, 255, 0.25);
+  color: white;
+  padding: 2vw;
+  box-sizing: border-box;
+  border-radius: 1.8vw;
+  transition: background-color 0.3s, transform 0.2s ease-in-out, color 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2.5vw;
+  cursor: pointer;
+}
+
+// Hover effects for the first interactive content block.
+.div-block-1:hover {
+  background-color: rgba(160, 200, 255, 0.8);
+  transform: translateY(-5px);
+  color: lightcoral;
+}
+
+// Styles for the second interactive content block, positioned on the right side of the screen.
+.div-block-2 {
+  position: absolute;
+  top: 55vh;
+  left: 54%;
+  right: 26%;
+  background-color: rgba(255, 160, 160, 0.25);
+  color: white;
+  padding: 2vw;
+  box-sizing: border-box;
+  border-radius: 1.8vw;
+  transition: background-color 0.3s, transform 0.2s ease-in-out, color 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2.5vw;
+  cursor: pointer;
+}
+
+// Hover effects for the second interactive content block.
+.div-block-2:hover {
+  background-color: rgba(255, 160, 160, 0.8);
+  transform: translateY(-5px);
+  color: lightcoral;
+}
+
+// Styles for background images, setting their positioning, sizing, and initial opacity.
+.background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 1s;
+}
+
+// Applies full opacity to active background images, making them visible.
+.background-image.active {
+  opacity: 1;
+}
+
+// Resets default margin and padding for the body element.
+body {
+  margin: 0;
+  padding: 0;
+}
