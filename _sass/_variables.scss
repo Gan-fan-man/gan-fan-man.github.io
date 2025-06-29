@@ -30,12 +30,14 @@
   --body-font-size: 18px;
   --body-line-height: 1.5;
   --body-color: var(--gray-700);
-  --body-bg: #fff;
+  --body-bg: #FFFFFF;
 
   --text-font: Times, "Times New Roman", "Free Serif", "Noto Serif", TimesNewRomanPSMT, "Droid Serif";
 
   --link-color: var(--blue);
+  --link-color2: var(--red);
   --link-hover-color: #1c7ed6;
+  --link-hover-color2: #FAACAC;
 
   --heading-color: var(--gray-900);
 
@@ -44,11 +46,37 @@
 
   --code-font: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --code-color: var(--grape);
-  --code-bg: #fbf1c7;
+  --code-bg: var(#AFAFB4);
 
   --spacer: 1rem;
   --spacer-2: calc(var(--spacer) * 1.5);
   --spacer-3: calc(var(--spacer) * 3);
+
+  // New variables for tool.html and tool_home.html
+  --header-bg: white;
+  --header-shadow: rgba(0,0,0,0.1);
+  --nav-link-color: black;
+  --footer-bg: #f0f0f0;
+  --footer-color: #777;
+
+  // New variables for tool content blocks
+  --tool-bg: #F5F5FF;
+  --tool-content-bg: #ffffff;
+  --tool-content-color: #333333;
+  --tool-content-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  --tool-input-bg: white;
+  --tool-input-color: #333333;
+  --tool-input-border: #cccccc;
+  --tool-button-bg: #007bff;
+  --tool-button-color: white;
+  --tool-button-hover-bg: #0056b3;
+
+  // Tool home page specific variables
+  --tool-block-bg: #B4B4C3;
+  --tool-block-opacity: 0.75;
+  --tool-block-hover-bg: #B4B4C9;
+  --tool-block-hover-opacity: 1;
+  --tool-block-color: initial;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -56,14 +84,42 @@
     --body-color: var(--gray-300);
     --body-bg: var(--gray-800);
 
-    --heading-color: #fff;
+    --heading-color: #ffffff;
 
     --link-color: var(--blue-300);
+	--link-color2: #FFA0A0;
     --link-hover-color: var(--blue-400);
+	--link-hover-color2: #FAACAC;
 
     --border-color: rgba(255,255,255,.15);
 
-    --code-bg: #282828;
+    --code-bg: var(--gray-900);
+
+    // Dark mode for tool.html and tool_home.html specific variables
+    --header-bg: #282c34;
+    --header-shadow: rgba(255,255,255,0.1);
+    --nav-link-color: #abb2bf;
+    --footer-bg: #282c34;
+    --footer-color: #abb2bf;
+
+    // Dark mode variables for tool content blocks
+	--tool-bg: #3C3A40;
+    --tool-content-bg: #333333;
+    --tool-content-color: #f8f8f8;
+    --tool-content-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    --tool-input-bg: #444444;
+    --tool-input-color: #f8f8f8;
+    --tool-input-border: #666666;
+    --tool-button-bg: #4CAF50;
+    --tool-button-color: white;
+    --tool-button-hover-bg: #45a049;
+
+    // Dark mode tool home page specific variables
+    --tool-block-bg: #464648;
+    --tool-block-opacity: 0.75;
+    --tool-block-hover-bg: #5a5a5c;
+    --tool-block-hover-opacity: 1;
+    --tool-block-color: white;
   }
 }
 
@@ -71,3 +127,9 @@ $sm-width: 35.5rem;
 $md-width: 48rem;
 $lg-width: 64rem;
 $xl-width: 80rem;
+
+/*
+ * File: _variables.scss
+ * Description: This file defines global CSS variables for colors, fonts, spacing,
+ * and other common stylistic properties, supporting both light and dark themes.
+ */

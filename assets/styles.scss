@@ -2,53 +2,64 @@
 # Use a comment to ensure Jekyll reads the file to be transformed into CSS later
 # only main files contain this front matter, not partials.
 ---
-
+//File: styles.scss
+//Description: Main stylesheet for the website, importing all other SCSS partials and defining global styles.
 //
-//                        ___
-//                       /\_ \
-//  _____     ___     ___\//\ \      __
-// /\ '__`\  / __`\  / __`\\ \ \   /'__`\
+//                         ___
+//                        /\_ \
+// _____       ___     ___\\//\\ \       __
+// /\ '__`\   / __`\  / __`\\\\ \ \    /'__`\
 // \ \ \_\ \/\ \_\ \/\ \_\ \\_\ \_/\  __/
 //  \ \ ,__/\ \____/\ \____//\____\ \____\
-//   \ \ \/  \/___/  \/___/ \/____/\/____/
-//    \ \_\
-//     \/_/
+//   \ \_\   \/___/  \/___/ \/____/\/____/
 //
 // Designed, built, and released under MIT license by @mdo. Learn more at
 // https://github.com/poole/poole.
 
-@import "variables";
-@import "base";
-@import "type";
-@import "code";
-@import "layout";
-@import "sidebar";
-@import "posts";
-@import "archive";
-@import "home-header";
-@import "pagination";
-@import "message";
-@import "toc";
-@import "alignment";
+/*
+ * Import necessary partials for styling.
+ */
+@use "variables";
+@use "_default";
+@use "type";
+@use "code";
+@use "layout";
+@use "sidebar";
+@use "posts";
+@use "archive";
+@use "home-header";
+@use "pagination";
+@use "message";
+@use "toc";
+@use "alignment";
 
-@import "syntax-light";
+// Import the _syntax module without a namespace, allowing direct use of its mixins.
+@use "syntax" as *;
+
+// Apply the light syntax highlighting theme by default.
+@include syntax-light-theme;
+
+// Apply the dark syntax highlighting theme only when the user prefers dark mode.
 @media (prefers-color-scheme: dark) {
-  @import "syntax-dark";
+  @include syntax-dark-theme;
 }
 
-// Sass for creating the swatches
+// Styles for displaying color swatches.
 .colors {
+  // Use CSS Grid to arrange the color swatch and its description.
   display: grid;
   grid-template-columns: max-content 1fr;
 
+  // Styles for the color swatch block.
   dt {
     width: 3rem;
     height: 3rem;
     border-radius: var(--border-radius);
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,.15);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .15);
   }
 
+  // Styles for the description text of the color swatch.
   dd {
-    margin-left: var(--spacer);
+    margin-left: var(--spacer-2);
   }
 }

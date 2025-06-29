@@ -1,0 +1,43 @@
+<!-- This page creates a horizontal menu for post navigation, styling it with CSS.-->
+<style>
+.post-header-bar {
+  width: 100%;
+  height: 100%;
+
+  -webkit-box-shadow: 0 1em 1em -.9em var(--border-color);
+     -moz-box-shadow: 0 1em 1em -.9em var(--border-color);
+          box-shadow: 0 1em 1em -.9em var(--border-color);
+}
+
+.post-header-menu {
+  a {
+    border-bottom: 1px solid rgba(0, 0, 0, 0);
+
+    &:hover,
+    &:focus {
+      color: inherit;
+      background-color: inherit;
+      border-bottom-color: var(--link-color2);
+    }
+  }
+
+  .current-item {
+    border-bottom-color: var(--link-color2);
+  }
+}
+
+</style>
+
+<div class="post-header pure-menu pure-menu-horizontal">
+  <div class="post-header-bar">
+    {% if site.data.archive %}
+      <ul class="post-header-menu pure-menu-list">
+        {% for item in site.data.archive %}
+          <li class="pure-menu-item">
+            <a href="{{ item.url | relative_url }}" class="pure-menu-link {% if page.url == item.url %}current-item{% endif %}">{{ item.title }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+</div>

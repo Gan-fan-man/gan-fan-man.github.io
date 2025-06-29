@@ -1,8 +1,13 @@
-// Messages
-//
-// Show alert messages to users. You may add it to single elements like a `<p>`,
-// or to a parent if there are multiple elements to show.
+/*
+ * File: _message.scss
+ * Description: This file defines styles for displaying alert messages to users.
+ * These styles can be applied to single elements or to parent containers with multiple message elements.
+ */
 
+// Importing variables for consistent styling.
+@use "variables" as *;
+
+// Styles for a generic message block, providing padding, margin, colors, and border-radius.
 .message {
   padding: var(--spacer);
   margin-bottom: var(--spacer);

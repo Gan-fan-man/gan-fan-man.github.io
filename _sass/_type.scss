@@ -1,7 +1,13 @@
-// Typography
-//
-// Headings, body text, lists, and other misc typographic elements.
+/*
+ * File: _type.scss
+ * Description: This file defines typographic styles for various HTML elements,
+ * including headings, body text, lists, blockquotes, and footnotes.
+ */
 
+// Importing variables for consistent styling across the project.
+@use "variables" as *;
+
+// Base styles for all heading elements.
 h1, h2, h3, h4, h5, h6 {
   margin-bottom: .5rem;
   font-weight: 600;
@@ -10,56 +16,67 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--heading-color);
 }
 
+// Specific font size for h1 heading.
 h1 {
   font-size: 2rem;
 }
 
+// Specific font size and top margin for h2 heading.
 h2 {
   margin-top: 2rem;
   font-size: 1.5rem;
 }
 
+// Specific font size and top margin for h3 heading.
 h3 {
   margin-top: 1.5rem;
   font-size: 1.17rem;
 }
 
+// Specific font size and top margin for h4 heading.
 h4 {
   margin-top: 1rem;
   font-size: 1.12rem;
 }
 
+// Specific font size and top margin for h5 heading.
 h5 {
   margin-top: 1rem;
   font-size: .83rem;
 }
 
+// Specific font size and top margin for h6 heading.
 h6 {
   margin-top: 1rem;
   font-size: .75rem;
 }
 
+// Styles for paragraph elements, including margins and hyphenation.
 p {
   margin-top: 0;
   margin-bottom: 1rem;
   -webkit-hyphens: auto;
-      -ms-hyphens: auto;
-          hyphens: auto;
+  -ms-hyphens: auto;
+  hyphens: auto;
 }
 
+// Styles for unordered lists, ordered lists, and description lists, setting margins.
 ul, ol, dl {
   margin-top: 0;
   margin-bottom: 1rem;
 }
 
+// Styles for definition terms, setting font weight.
 dt {
   font-weight: bold;
 }
 
+// Styles for definition descriptions, setting bottom margin.
 dd {
   margin-bottom: .5rem;
 }
 
+// Styles for horizontal rules, defining position, margins, and border.
 hr {
   position: relative;
   margin: var(--spacer-2) 0;
@@ -67,62 +84,59 @@ hr {
   border-top: 1px solid var(--border-color);
 }
 
+// Styles for abbreviations, including font size, weight, color, and text transform.
 abbr {
   font-size: 85%;
   font-weight: bold;
   color: var(--gray-600);
   text-transform: uppercase;
 
+  // Styles for abbreviations with a title attribute, adding cursor and border.
   &[title] {
     cursor: help;
     border-bottom: 1px dotted var(--border-color);
   }
 }
 
+// Styles for blockquote elements, defining padding, margin, color, and left border.
 blockquote {
   padding: .5rem 1rem;
   margin: .8rem 0;
   color: var(--gray-500);
   border-left: .25rem solid var(--border-color);
 
+  // Resets bottom margin for the last paragraph within a blockquote.
   p:last-child {
     margin-bottom: 0;
   }
 
+  // Media query for small-width screens and larger, adjusting blockquote padding.
   @media (min-width: $sm-width) {
     padding-right: 5rem;
     padding-left: 1.25rem;
   }
 }
 
+// Resets margin for figure elements.
 figure {
   margin: 0;
 }
 
-
-// Markdown footnotes
-//
-// See the example content post for an example.
-
-// Footnote number within body text
+// Styles for footnote numbers within body text and back-to-footnote links.
 a[href^="#fn:"],
-// Back to footnote link
 a[href^="#fnref:"] {
   display: inline-block;
   margin-left: .1rem;
   font-weight: bold;
 }
 
-// List of footnotes
+// Styles for the list of footnotes, setting top margin and font size.
 .footnotes {
   margin-top: 2rem;
   font-size: 85%;
 }
 
-// Custom type
-//
-// Extend paragraphs with `.lead` for larger introductory text.
-
+// Styles for lead paragraphs, setting font size and weight.
 .lead {
   font-size: 1.25rem;
   font-weight: 300;

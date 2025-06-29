@@ -1,0 +1,507 @@
+---
+layout: tool
+title: CPStest
+permalink: /tool/CPStest/
+---
+<h2 style="text-align: center; margin-bottom: 20px;">CPS TEST</h2>
+
+<div class="cps-container">
+    <div id="instructionDisplay" class="info-message">Click Start, and the test will automatically stop after 10 seconds.</div>
+    <div id="clickArea" class="click-area">
+        <span id="clicksDisplay">Number of clicks: 0</span>
+        <span id="timerDisplay">remaining time: 10.00 seconds</span>
+    </div>
+    <div id="resultDisplay" class="result-message"></div>
+    <button id="resetButton" class="tool-button reset-button">start over</button>
+
+    <div id="historyContainer" class="history-container">
+        <div class="history-header">
+            <h3>Past performance</h3>
+            <button id="clearHistoryBtn" class="tool-button clear-button" style="display: none;">Clear data</button>
+        </div>
+        <div id="historyContent">
+            <ul id="historyList"></ul>
+            <p id="historyPlaceholder">Loading records...</p>
+        </div>
+    </div>
+</div>
+
+<div id="confirmClearModal" class="modal-overlay">
+    <div class="modal-content">
+        <p>Are you sure you want to clear your browsing history? This action cannot be undone.</p>
+        <div class="modal-buttons">
+            <button id="confirmClear" class="tool-button confirm-ok">confirm</button>
+            <button id="cancelClear" class="tool-button confirm-cancel">cancel</button>
+        </div>
+    </div>
+</div>
+
+
+<style>
+    :root {
+        --red: #fa5252;
+        --gray-600: #868e96;
+        --gray-700: #495057;
+        --blue: #228be6;
+        --border-color: #dee2e6;
+    }
+
+    .cps-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background-color: var(--tool-content-bg);
+        border-radius: 8px;
+        box-shadow: var(--tool-content-shadow);
+        width: 80%;
+        max-width: 600px;
+        margin: 20px auto;
+        box-sizing: border-box;
+        color: var(--tool-content-color);
+    }
+
+    .click-area {
+        width: 90%;
+        height: 200px;
+        background-color: var(--tool-input-bg);
+        border: 2px solid var(--tool-input-border);
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.8em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+        user-select: none;
+        position: relative;
+        overflow: hidden;
+        color: var(--tool-input-color);
+    }
+
+    .click-area.test-active {
+        background-color: var(--tool-button-bg);
+        color: var(--tool-button-color);
+        border-color: var(--tool-button-bg);
+    }
+
+    .click-area.test-active:hover {
+        background-color: var(--tool-button-hover-bg);
+    }
+
+    .click-area.disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+        background-color: var(--tool-input-bg);
+        color: var(--tool-input-color);
+    }
+
+    .click-area span {
+        display: block;
+        margin: 5px 0;
+    }
+
+    .info-message {
+        font-size: 1.1em;
+        color: var(--tool-content-color);
+        margin-bottom: 10px;
+    }
+
+    .result-message {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: var(--blue);
+        margin-top: 20px;
+        min-height: 1.5em;
+    }
+
+    .tool-button {
+        background-color: var(--tool-button-bg);
+        color: var(--tool-button-color);
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
+        margin-top: 20px;
+        transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .tool-button:hover {
+        background-color: var(--tool-button-hover-bg);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .click-area.click-highlight {
+        transform: scale(0.97);
+        box-shadow: 0 0 15px 3px var(--blue);
+        background-color: var(--tool-button-bg);
+        transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+    }
+
+    .history-container {
+        width: 90%;
+        margin-top: 30px;
+        padding: 15px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background-color: var(--tool-input-bg);
+    }
+
+    .history-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        color: var(--tool-content-color);
+    }
+
+    .history-header h3 {
+        margin: 0;
+    }
+
+    .clear-button {
+        margin-top: 0;
+        padding: 5px 10px;
+        font-size: 0.9em;
+    }
+
+    #historyList {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        max-height: 200px;
+        overflow-y: auto;
+        color: var(--tool-content-color);
+    }
+
+    #historyList li {
+        padding: 8px 5px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.95em;
+    }
+
+    #historyList li:last-child {
+        border-bottom: none;
+    }
+    
+    #historyList .cps-score {
+        font-weight: bold;
+        color: var(--blue);
+    }
+
+    #historyList .test-date {
+        color: var(--gray-600);
+        font-size: 0.9em;
+    }
+
+    #historyPlaceholder {
+        text-align: center;
+        color: var(--gray-600);
+        padding: 20px 0;
+    }
+
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .modal-content {
+        background: var(--tool-content-bg);
+        color: var(--tool-content-color);
+        padding: 30px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: var(--tool-content-shadow);
+        width: 90%;
+        max-width: 400px;
+    }
+    
+    .modal-content p {
+        margin: 0 0 25px;
+    }
+
+    .modal-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .modal-buttons .tool-button {
+        margin-top: 0;
+    }
+
+    .confirm-ok {
+        background-color: var(--red) !important;
+    }
+
+    .confirm-ok:hover {
+        background-color: #d94848 !important;
+    }
+    
+    .confirm-cancel {
+        background-color: var(--gray-600) !important;
+    }
+    
+    .confirm-cancel:hover {
+        background-color: var(--gray-700) !important;
+    }
+
+    @media (max-width: 768px) {
+        .cps-container {
+            width: 95%;
+            padding: 15px;
+        }
+
+        .click-area {
+            height: 150px;
+            font-size: 1.5em;
+        }
+
+        .info-message {
+            font-size: 1em;
+        }
+
+        .result-message {
+            font-size: 1.2em;
+        }
+
+        .tool-button {
+            padding: 8px 15px;
+            font-size: 0.9em;
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const clickArea = document.getElementById('clickArea');
+    const clicksDisplay = document.getElementById('clicksDisplay');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const resultDisplay = document.getElementById('resultDisplay');
+    const instructionDisplay = document.getElementById('instructionDisplay');
+    const resetButton = document.getElementById('resetButton');
+    const historyContainer = document.getElementById('historyContainer');
+    const historyList = document.getElementById('historyList');
+    const historyPlaceholder = document.getElementById('historyPlaceholder');
+    const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+    const confirmClearModal = document.getElementById('confirmClearModal');
+    const confirmClearBtn = document.getElementById('confirmClear');
+    const cancelClearBtn = document.getElementById('cancelClear');
+
+    let clickCount = 0;
+    let startTime = 0;
+    let testActive = false;
+    let timerInterval;
+    const testDuration = 10000;
+
+    function setCookie(name, value, days) {
+        let expires = "";
+        if (days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+    }
+
+    function getCookie(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for(let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
+    }
+
+    function loadHistory() {
+        if (getCookie('cookie_consent') !== 'agreed') {
+            historyPlaceholder.textContent = 'Agree to cookies to enable this feature';
+            clearHistoryBtn.style.display = 'none';
+            historyList.style.display = 'none';
+            historyPlaceholder.style.display = 'block';
+            return;
+        }
+
+        const historyData = getCookie('cps_history');
+        if (historyData) {
+            try {
+                const history = JSON.parse(historyData);
+                if (history && history.length > 0) {
+                    displayHistory(history);
+                } else {
+                    showNoRecordsMessage();
+                }
+            } catch (e) {
+                console.error("Failed to parse history:", e);
+                showNoRecordsMessage();
+            }
+        } else {
+            showNoRecordsMessage();
+        }
+    }
+
+    function saveHistory(cps) {
+        if (getCookie('cookie_consent') !== 'agreed') {
+            return;
+        }
+        let history = [];
+        const historyData = getCookie('cps_history');
+        if (historyData) {
+            try {
+                history = JSON.parse(historyData);
+            } catch(e) {
+                console.error("Failed to parse existing history records:", e);
+                history = [];
+            }
+        }
+        
+        const newRecord = {
+            cps: cps,
+            date: new Date().toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+        };
+        history.unshift(newRecord);
+
+        if (history.length > 50) {
+            history.pop();
+        }
+
+        setCookie('cps_history', JSON.stringify(history), 365);
+        displayHistory(history);
+    }
+
+    function displayHistory(history) {
+        historyList.innerHTML = '';
+        history.forEach(record => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <span class="cps-score">${record.cps} CPS</span>
+                <span class="test-date">${record.date}</span>
+            `;
+            historyList.appendChild(li);
+        });
+        historyList.style.display = 'block';
+        historyPlaceholder.style.display = 'none';
+        clearHistoryBtn.style.display = 'inline-block';
+    }
+    
+    function showNoRecordsMessage() {
+        historyPlaceholder.textContent = 'No records found at this time.';
+        historyList.innerHTML = '';
+        historyList.style.display = 'none';
+        historyPlaceholder.style.display = 'block';
+        clearHistoryBtn.style.display = 'none';
+    }
+
+    function clearHistory() {
+        setCookie('cps_history', '', -1);
+        showNoRecordsMessage();
+        confirmClearModal.style.display = 'none';
+    }
+
+    function handleClick() {
+        if (!testActive) {
+            startTest();
+        }
+        clickCount++;
+        clicksDisplay.textContent = `Number of clicks: ${clickCount}`;
+
+        clickArea.classList.add('click-highlight');
+        setTimeout(() => {
+            clickArea.classList.remove('click-highlight');
+        }, 100);
+    }
+
+    function startTest() {
+        testActive = true;
+        startTime = Date.now();
+        instructionDisplay.textContent = 'Testing in progress...';
+        clickArea.classList.add('test-active');
+        clickArea.classList.remove('disabled');
+
+        timerInterval = setInterval(() => {
+            const elapsedTime = Date.now() - startTime;
+            const remainingTime = Math.max(0, testDuration - elapsedTime);
+            timerDisplay.textContent = `remaining time: ${(remainingTime / 1000).toFixed(2)} seconds`;
+
+            if (remainingTime <= 0) {
+                endTest();
+            }
+        }, 50);
+    }
+
+    function endTest() {
+        testActive = false;
+        clearInterval(timerInterval);
+        clickArea.removeEventListener('mousedown', handleClick);
+        
+        clickArea.classList.remove('test-active');
+        clickArea.classList.add('disabled');
+        instructionDisplay.textContent = 'Test complete!';
+
+        const durationSeconds = testDuration / 1000;
+        const cps = (clickCount / durationSeconds).toFixed(1);
+        resultDisplay.textContent = `Your CPS: ${cps}`;
+
+        saveHistory(cps);
+    }
+
+    function resetTest() {
+        clickCount = 0;
+        startTime = 0;
+        testActive = false;
+        clearInterval(timerInterval);
+
+        clicksDisplay.textContent = `Number of clicks: 0`;
+        timerDisplay.textContent = `remaining time: ${(testDuration / 1000).toFixed(2)} seconds`;
+        resultDisplay.textContent = '';
+        instructionDisplay.textContent = `Click Start, and the test will automatically stop after  ${(testDuration / 1000).toFixed(0)} second`;
+        
+        clickArea.classList.remove('disabled');
+        clickArea.classList.remove('test-active');
+        clickArea.removeEventListener('mousedown', handleClick);
+        clickArea.addEventListener('mousedown', handleClick);
+    }
+
+    resetButton.addEventListener('click', resetTest);
+    
+    clearHistoryBtn.addEventListener('click', () => {
+        confirmClearModal.style.display = 'flex';
+    });
+
+    cancelClearBtn.addEventListener('click', () => {
+        confirmClearModal.style.display = 'none';
+    });
+
+    confirmClearBtn.addEventListener('click', clearHistory);
+
+    document.addEventListener('cookieConsent', (event) => {
+        if (event.detail.consent === 'agreed') {
+            loadHistory();
+        }
+    });
+
+    function initializeApp() {
+        resetTest();
+        loadHistory();
+    }
+
+    initializeApp();
+});
+</script>

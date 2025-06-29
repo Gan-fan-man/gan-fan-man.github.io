@@ -1,0 +1,181 @@
+<style>
+  /* 样式部分保持不变，因此在此省略以保持简洁 */
+  /* The <style> section remains unchanged. */
+  #cookie-consent-banner {
+    position: fixed;
+    bottom: -100%;
+    left: 20px;
+    width: 320px;
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: bottom 0.5s ease-in-out;
+    z-index: 9999;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  #cookie-consent-banner.show {
+    bottom: 20px;
+  }
+  #cookie-consent-banner h3 {
+    margin-top: 0;
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #333;
+  }
+  #cookie-consent-banner p {
+    font-size: 0.9em;
+    color: #555;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+  .cookie-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  .cookie-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 500;
+    transition: background-color 0.3s;
+  }
+  .agree-btn {
+    background-color: #007bff;
+    color: white;
+  }
+  .agree-btn:hover {
+    background-color: #0056b3;
+  }
+  .disagree-btn {
+    background-color: #6c757d;
+    color: white;
+  }
+  .disagree-btn:hover {
+    background-color: #5a6268;
+  }
+</style>
+
+<div id="cookie-consent-banner">
+  <h3>We use Cookies</h3>
+  <p>We use cookies to optimize your website experience, analyze traffic, and provide personalized content while ensuring your privacy and security.</p>
+  <div class="cookie-buttons">
+    <button id="disagree-btn" class="cookie-btn disagree-btn">Disagree</button>
+    <button id="agree-btn" class="cookie-btn agree-btn">Agree</button>
+  </div>
+</div>
+
+<script>
+// 等待DOM内容完全加载后执行脚本
+document.addEventListener("DOMContentLoaded", function() {
+  const banner = document.getElementById('cookie-consent-banner');
+  const agreeBtn = document.getElementById('agree-btn');
+  const disagreeBtn = document.getElementById('disagree-btn');
+
+  // --- 新增：多语言翻译文本库 ---
+  const translations = {
+    // 英文 (默认)
+    en: {
+      title: "We use Cookies",
+      description: "This website uses cookies to optimise your website experience, analyse traffic and provide personalised content while ensuring your privacy and security.",
+      disagree: "Disagree",
+      agree: "Agree"
+    },
+    // 中文
+    zh: {
+      title: "我们使用 Cookie",
+      description: "本网站使用 Cookie 来优化您的网站体验、分析流量并在确保您隐私安全的情况下提供个性化内容。",
+      disagree: "不同意",
+      agree: "确认"
+    },
+    // 日文
+    ja: {
+      title: "クッキー（Cookie）の使用について",
+      description: "このウェブサイトでは、ユーザーのウェブサイト体験を最適化し、トラフィックを分析し、パーソナライズされたコンテンツを提供するため、クッキーを使用しています。これにより、ユーザーのプライバシーとセキュリティを保護しながら、これらの機能を実現しています。",
+      disagree: "同意しない",
+      agree: "同意する"
+    }
+  };
+
+  // --- 新增：语言检测和文本更新逻辑 ---
+  function setLanguage() {
+    // 获取浏览器的语言设置，并转换为小写以方便匹配 (e.g., "zh-cn" or "ja")
+    const lang = (navigator.language || navigator.userLanguage).toLowerCase();
+    let currentLang;
+
+    if (lang.startsWith('zh')) {
+      // 如果语言代码以 'zh' 开头 (如 zh-CN, zh-TW), 则使用中文
+      currentLang = translations.zh;
+    } else if (lang.startsWith('ja')) {
+      // 如果语言代码以 'ja' 开头, 则使用日文
+      currentLang = translations.ja;
+    } else {
+      // 其他所有情况，都使用英文作为默认语言
+      currentLang = translations.en;
+    }
+
+    // 更新HTML元素中的文本内容
+    banner.querySelector('h3').textContent = currentLang.title;
+    banner.querySelector('p').textContent = currentLang.description;
+    disagreeBtn.textContent = currentLang.disagree;
+    agreeBtn.textContent = currentLang.agree;
+  }
+
+  // 在脚本开始时立即执行语言设置
+  setLanguage();
+
+
+  // --- 以下是您原有的 Cookie 处理逻辑，保持不变 ---
+
+  // 函数：设置Cookie
+  function setCookie(name, value, days) {
+    let expires = "";
+    if (days) {
+      const date = new Date();
+      date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+      expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+  }
+
+  // 函数：获取Cookie
+  function getCookie(name) {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for(let i = 0; i < ca.length; i++) {
+      let c = ca[i];
+      while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+      if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
+  }
+
+  // 检查是否已经存在cookie_consent的记录
+  if (!getCookie('cookie_consent')) {
+    // 如果没有记录，则显示弹出窗口
+    banner.classList.add('show');
+  }
+
+  // “确认”按钮的点击事件监听器
+  agreeBtn.addEventListener('click', function() {
+    setCookie('cookie_consent', 'agreed', 365);
+    banner.classList.remove('show');
+    const event = new CustomEvent('cookieConsent', { detail: { consent: 'agreed' } });
+    document.dispatchEvent(event);
+    console.log("Visitor agrees to cookies");
+  });
+
+  // “不同意”按钮的点击事件监听器
+  disagreeBtn.addEventListener('click', function() {
+    setCookie('cookie_consent', 'disagreed', 365);
+    banner.classList.remove('show');
+    const event = new CustomEvent('cookieConsent', { detail: { consent: 'disagreed' } });
+    document.dispatchEvent(event);
+    console.log("Visitor does not agree to cookies");
+  });
+});
+</script>

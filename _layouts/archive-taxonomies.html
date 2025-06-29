@@ -2,8 +2,8 @@
 layout: default
 ---
 
-{% include home-header.html %}
-
+{% include post-header.html %}
+<!-- Archive-taxonomies.html creates a post archive grouped by categories or tags. It dynamically displays taxonomy names and post counts, allowing navigation to specific sections.-->
 <h1>{{ page.title }}</h1>
 
 {% comment %} Check the type of archive {% endcomment %}
@@ -78,8 +78,11 @@ layout: default
 {%- endfor -%}
 
 <script>
+  // Function to scroll the main content area back to the top.
   function backToTop() {
+    // Get the main content element by its ID.
     const main = document.getElementById("site-main");
+    // Set the scroll position of the main element to 0 (top).
     main.scrollTop = 0;
   }
 </script>

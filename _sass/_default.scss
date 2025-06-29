@@ -1,0 +1,89 @@
+/*
+ * File: _default.scss
+ * Description: This file contains foundational and global styles for the entire page,
+ * including body resets, link styles, image styling, and table formatting.
+ */
+
+// Importing variables for consistent styling across the project.
+@use "variables" as *;
+
+// Applies border-box sizing to all elements for consistent box model behavior.
+* {
+  box-sizing: border-box;
+}
+
+// Defines global body styles, including font, text size, line height, colors, and text size adjustment.
+body {
+  margin: 0;
+  font-family: var(--body-font);
+  font-size: var(--body-font-size);
+  line-height: var(--body-line-height);
+  color: var(--body-color);
+  background-color: var(--body-bg);
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+// Styles for anchor links. No specific :visited state is set by default.
+a {
+  color: var(--link-color2);
+
+  // Styles for hover and focus states for accessibility.
+  &:hover,
+  &:focus {
+    background-color: transparent; 
+    color: var(--link-hover-color2);
+  }
+
+  // Ensures strong tags within links inherit the link color.
+  strong {
+    color: inherit;
+  }
+}
+
+// Styles for images, ensuring they are responsive and have consistent spacing and rounded corners.
+img {
+  display: block;
+  max-width: 100%;
+  margin-bottom: var(--spacer);
+  border-radius: var(--border-radius);
+}
+
+// Base styles for tables, setting width, border, and collapse behavior.
+table {
+  margin-bottom: 1rem;
+  width: 100%;
+  border: 0 solid var(--border-color);
+  border-collapse: collapse;
+}
+
+// Styles for table data cells and table header cells.
+td,
+th {
+  padding: .25rem .5rem;
+  border-color: inherit;
+  border-style: solid;
+  border-width: 0;
+  border-bottom-width: 1px;
+}
+
+// Aligns text to the left for table headers.
+th {
+  text-align: left;
+}
+
+// Styles for table header cells within thead, applying a bottom border with current color.
+thead th {
+  border-bottom-color: currentColor;
+}
+
+// Styles for the <mark> HTML element, used for highlighting text.
+mark {
+  padding: .15rem;
+  background-color: var(--yellow-100);
+  border-radius: .125rem;
+}
+
+.social-icons .pure-menu-link:hover {
+  background-color: transparent;
+}

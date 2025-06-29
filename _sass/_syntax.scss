@@ -1,0 +1,384 @@
+/*
+ * File: _syntax.scss
+ * Description: This file defines mixins for syntax highlighting themes,
+ * supporting both light and dark color schemes for code blocks.
+ */
+
+// Mixin for light syntax highlighting theme.
+@mixin syntax-light-theme {
+  // Sets padding for table data cells within highlighted code blocks.
+  .highlight table td {
+    padding: 5px;
+  }
+  // Resets margin for preformatted text within highlighted code blocks.
+  .highlight table pre {
+    margin: 0;
+  }
+  // Defines default text and background colors for highlighted code and whitespace.
+  .highlight, .highlight .w {
+    color: #000000;
+    background-color: #F0F0FA;
+  }
+  // Styles for error tokens, including color, background, and font weight.
+  .highlight .err {
+    color: #FFC040;
+    background-color: #FAF5E1;
+    font-weight: bold;
+  }
+  // Styles for comments, applying color and italic font style.
+  .highlight .c, .highlight .ch, .highlight .cd, .highlight .cm, .highlight .cpf, .highlight .c1, .highlight .cs {
+    color: #353540;
+    font-style: italic;
+  }
+  // Styles for preprocessor directives.
+  .highlight .cp {
+    color: #00DD00;
+  }
+  // Styles for HTML tags.
+  .highlight .nt {
+    color: #BB3300;
+  }
+  // Styles for operators.
+  .highlight .o, .highlight .ow {
+    color: #666666;
+  }
+  // Styles for punctuation.
+  .highlight .p, .highlight .pi {
+    color: #000000;
+  }
+  // Styles for inserted code.
+  .highlight .gi {
+    color: #00DD00;
+    background-color: #FFFFD2;
+  }
+  // Styles for deleted code.
+  .highlight .gd {
+    color: #C80000;
+    background-color: #FFFFD2;
+  }
+  // Styles for git-like headers.
+  .highlight .gh {
+    color: #00DD00;
+    font-weight: bold;
+  }
+  // Styles for various keyword types.
+  .highlight .k, .highlight .kn, .highlight .kp, .highlight .kr, .highlight .kv {
+    color: #33AADD;
+  }
+  // Styles for constant keywords.
+  .highlight .kc {
+    color: #805580;
+  }
+  // Styles for type keywords.
+  .highlight .kt {
+    color: #805580;
+  }
+  // Styles for declaration keywords.
+  .highlight .kd {
+    color: #805580;
+  }
+  // Styles for various string types.
+  .highlight .s, .highlight .sa, .highlight .sb, .highlight .sc, .highlight .dl, .highlight .sd, .highlight .s2, .highlight .sh, .highlight .sx, .highlight .s1 {
+    color: #00DD00;
+  }
+  // Styles for symbol strings.
+  .highlight .ss {
+    color: #00DD00;
+  }
+  // Styles for regular expression strings.
+  .highlight .sr {
+    color: #008800;
+  }
+  // Styles for escape sequences.
+  .highlight .se {
+    color: #00DD00;
+  }
+  // Styles for interpolated strings.
+  .highlight .si {
+    color: #C80000;
+  }
+  // Styles for built-in functions.
+  .highlight .nb {
+    color: #33AADD;
+  }
+  // Styles for class names.
+  .highlight .nc {
+    color: #33AADD;
+  }
+  // Styles for constants.
+  .highlight .no {
+    color: #BB3300;
+  }
+  // Styles for exceptions.
+  .highlight .ne {
+    color: #FF5050;
+  }
+  // Styles for function names.
+  .highlight .nf {
+    color: #BB3300;
+  }
+  // Styles for namespace names.
+  .highlight .nn {
+    color: #33AADD;
+  }
+  // Styles for variable names.
+  .highlight .vc, .highlight .vg, .highlight .vi {
+    color: #FF5050;
+  }
+  // Styles for general names.
+  .highlight .nv {
+    color: #BB3300;
+  }
+  // Styles for member variables.
+  .highlight .vm {
+    color: #FF5050;
+  }
+  // Styles for various number types.
+  .highlight .il, .highlight .mf, .highlight .mh, .highlight .mi, .highlight .mo, .highlight .mb, .highlight .mx {
+    color: #00DD00;
+  }
+  // Styles for comments and shell comments.
+  .highlight .ch, .highlight .sh {
+    color: #00DD00;
+  }
+  // Styles for generic error.
+  .highlight .gr {
+    color: #C80000;
+  }
+  // Styles for generic output.
+  .highlight .gx {
+    color: #00DD00;
+  }
+  // Styles for generic heading.
+  .highlight .gh {
+    color: #33AADD;
+    font-weight: bold;
+  }
+  // Styles for generic subheading.
+  .highlight .gu {
+    color: #C80000;
+  }
+  // Styles for generic deleted.
+  .highlight .gd {
+    color: #C80000;
+  }
+  // Styles for generic emphasized text.
+  .highlight .ge {
+    font-style: italic;
+  }
+  // Styles for generic strong text.
+  .highlight .gs {
+    font-weight: bold;
+  }
+  // Styles for generic prompt.
+  .highlight .gp {
+    color: #C80000;
+  }
+  // Styles for generic output.
+  .highlight .go {
+    color: #666666;
+  }
+  // Styles for generic traceback.
+  .highlight .gt {
+    color: #C80000;
+  }
+  // Styles for generic comments.
+  .highlight .cs {
+    color: #C80000;
+  }
+  // Styles for generic (not classified).
+  .highlight .g {
+    color: #666666;
+    background-color: #FAF5E1;
+  }
+}
+
+// Mixin for dark syntax highlighting theme.
+@mixin syntax-dark-theme {
+  // Sets padding for table data cells within highlighted code blocks.
+  .highlight table td {
+    padding: 5px;
+  }
+  // Resets margin for preformatted text within highlighted code blocks.
+  .highlight table pre {
+    margin: 0;
+  }
+  // Defines default text and background colors for highlighted code and whitespace.
+  .highlight, .highlight .w {
+    color: #FFFFFF;
+    background-color: #1E1E28;
+  }
+  // Styles for error tokens, including color, background, and font weight.
+  .highlight .err {
+    color: #FFC040;
+    background-color: #1E1E28;
+    font-weight: bold;
+  }
+  // Styles for comments, applying color and italic font style.
+  .highlight .c, .highlight .ch, .highlight .cd, .highlight .cm, .highlight .cpf, .highlight .c1, .highlight .cs {
+    color: #606060;
+    font-style: italic;
+  }
+  // Styles for preprocessor directives.
+  .highlight .cp {
+    color: #64FF64;
+  }
+  // Styles for HTML tags.
+  .highlight .nt {
+    color: #FFFF64;
+  }
+  // Styles for operators.
+  .highlight .o, .highlight .ow {
+    color: #E1E1E1;
+  }
+  // Styles for punctuation.
+  .highlight .p, .highlight .pi {
+    color: #FFFFFF;
+  }
+  // Styles for inserted code.
+  .highlight .gi {
+    color: #64FF64;
+    background-color: #1E1E28;
+  }
+  // Styles for deleted code.
+  .highlight .gd {
+    color: #FF4830;
+    background-color: #1E1E28;
+  }
+  // Styles for git-like headers.
+  .highlight .gh {
+    color: #64FF64;
+    font-weight: bold;
+  }
+  // Styles for various keyword types.
+  .highlight .k, .highlight .kn, .highlight .kp, .highlight .kr, .highlight .kv {
+    color: #FF5050;
+  }
+  // Styles for constant keywords.
+  .highlight .kc {
+    color: #FFAAFF;
+  }
+  // Styles for type keywords.
+  .highlight .kt {
+    color: #FFAAFF;
+  }
+  // Styles for declaration keywords.
+  .highlight .kd {
+    color: #FFAAFF;
+  }
+  // Styles for various string types.
+  .highlight .s, .highlight .sa, .highlight .sb, .highlight .sc, .highlight .dl, .highlight .sd, .highlight .s2, .highlight .sh, .highlight .sx, .highlight .s1 {
+    color: #64FF64;
+  }
+  // Styles for symbol strings.
+  .highlight .ss {
+    color: #64FF64;
+  }
+  // Styles for regular expression strings.
+  .highlight .sr {
+    color: #77CC77;
+  }
+  // Styles for escape sequences.
+  .highlight .se {
+    color: #64FF64;
+  }
+  // Styles for interpolated strings.
+  .highlight .si {
+    color: #FF4830;
+  }
+  // Styles for built-in functions.
+  .highlight .nb {
+    color: #55DDFF;
+  }
+  // Styles for class names.
+  .highlight .nc {
+    color: #55DDFF;
+  }
+  // Styles for constants.
+  .highlight .no {
+    color: #FFFF64;
+  }
+  // Styles for exceptions.
+  .highlight .ne {
+    color: #FF5050;
+  }
+  // Styles for function names.
+  .highlight .nf {
+    color: #FFFF64;
+  }
+  // Styles for namespace names.
+  .highlight .nn {
+    color: #55DDFF;
+  }
+  // Styles for variable names.
+  .highlight .vc, .highlight .vg, .highlight .vi {
+    color: #FF5050;
+  }
+  // Styles for general names.
+  .highlight .nv {
+    color: #FFFF64;
+  }
+  // Styles for member variables.
+  .highlight .vm {
+    color: #FF5050;
+  }
+  // Styles for various number types.
+  .highlight .il, .highlight .mf, .highlight .mh, .highlight .mi, .highlight .mo, .highlight .mb, .highlight .mx {
+    color: #64FF64;
+  }
+  // Styles for comments and shell comments.
+  .highlight .ch, .highlight .sh {
+    color: #64FF64;
+  }
+  // Styles for generic error.
+  .highlight .gr {
+    color: #FF4830;
+  }
+  // Styles for generic output.
+  .highlight .gx {
+    color: #64FF64;
+  }
+  // Styles for generic heading.
+  .highlight .gh {
+    color: #55DDFF;
+    font-weight: bold;
+  }
+  // Styles for generic subheading.
+  .highlight .gu {
+    color: #FF4830;
+  }
+  // Styles for generic deleted.
+  .highlight .gd {
+    color: #FF4830;
+  }
+  // Styles for generic emphasized text.
+  .highlight .ge {
+    font-style: italic;
+  }
+  // Styles for generic strong text.
+  .highlight .gs {
+    font-weight: bold;
+  }
+  // Styles for generic prompt.
+  .highlight .gp {
+    color: #FF4830;
+  }
+  // Styles for generic output.
+  .highlight .go {
+    color: #E1E1E1;
+    background-color: #1E1E28;
+  }
+  // Styles for generic traceback.
+  .highlight .gt {
+    color: #FF4830;
+  }
+  // Styles for generic comments.
+  .highlight .cs {
+    color: #FF4830;
+  }
+  // Styles for generic (not classified).
+  .highlight .g {
+    color: #E1E1E1;
+    background-color: #1E1E28;
+  }
+}

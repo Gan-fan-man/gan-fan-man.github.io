@@ -1,18 +1,26 @@
-// Sidebar
-//
-// Styles for the sidebar.
+/*
+ * File: _sidebar.scss
+ * Description: This file defines styles for the site's sidebar,
+ * including the masthead, avatar image, navigation, and social icons.
+ */
 
+// Importing variables for consistent styling.
+@use "variables" as *;
+
+// Styles for the masthead section in the sidebar, centering text and ensuring full width.
 .masthead {
   text-align: center;
   margin: auto;
   width: 100%;
 
+  // Styles for links within the masthead, inheriting color and removing underlines.
   a {
     color: inherit;
     text-decoration: none;
   }
 }
 
+// Styles for the avatar image, ensuring responsiveness and a circular shape.
 .avatar-image {
   width: 30%;
   height: auto;
@@ -22,18 +30,21 @@
   margin-left: auto;
 }
 
+// Styles for the main title within the masthead.
 .masthead-title {
   padding: 0;
   margin: 0;
   font-size: 2rem;
   font-weight: 900;
 
+  // Hover and focus states for links within the masthead title.
   a:hover,
   a:focus {
-    color: var(--link-hover-color);
+    color: var(--link-hover-color2);
   }
 }
 
+// Styles for the tagline within the masthead.
 .masthead-tagline {
   padding: 0;
   margin: 0;
@@ -42,17 +53,20 @@
   opacity: .7;
 }
 
+// Styles for the navigation list, removing default list styling.
 .navigation-list {
   margin-top: var(--spacer-2);
   padding: 0;
   list-style: none;
 }
 
+// Styles for individual navigation items.
 .navigation-item {
   display: block;
   margin-bottom: var(--spacer);
 }
 
+// Styles for links within navigation items, applying a subtle bottom border.
 .navigation-item a {
   background: transparent;
   color: inherit;
@@ -61,12 +75,14 @@
   border-bottom: 2px solid;
   border-color: inherit;
 
+  // Hover and focus states for navigation links.
   &:hover,
   &:focus {
-    color: var(--link-hover-color);
+    color: var(--link-hover-color2);
   }
 }
 
+// Styles for the social icons section.
 .social {
   margin-top: var(--spacer-2);
   font-size: 150%;
@@ -74,15 +90,18 @@
   line-height: .5;
 }
 
+// Styles for individual social icons.
 .social-icon {
   padding: var(--spacer);
+  // Hover and focus states for social icons, changing color and background.
   &:hover,
   &:focus {
-    color: var(--link-hover-color);
+    color: var(--link-hover-color2);
     background-color: transparent;
   }
 }
 
+// Media query for screens up to medium width, adjusting avatar image size.
 @media (max-width: $md-width) {
   .avatar-image {
     width: 15%;

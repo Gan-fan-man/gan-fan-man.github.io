@@ -6,14 +6,28 @@ _site
 .jekyll-cache
 
 # Numerous always-ignore extensions
+*.iso
+*.img
+*.apk
+*.ipa
+*.app
+*.pkg
+*.msi
+*.deb
+*.rpm
 *.diff
 *.err
+*.tmp
+*.bak
 *.orig
+*.old
 *.log
 *.rej
 *.swo
 *.swp
 *.zip
+*.rar
+*.7z
 *.vi
 *~
 

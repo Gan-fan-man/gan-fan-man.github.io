@@ -1,12 +1,19 @@
-// Archive
-//
-// Styles for archive pages.
+/*
+ * File: _archive.scss
+ * Description: This file contains styles specifically designed for archive pages,
+ * including layouts for taxonomies and post lists.
+ */
 
+// Importing variables for consistent styling.
+@use "variables" as *;
+
+// Wrapper for taxonomy navigation, providing spacing.
 .taxonomies-wrapper {
   margin-top: var(--spacer-2);
   margin-bottom: var(--spacer-2);
 }
 
+// Grid layout for displaying taxonomies (categories/tags).
 .taxonomies {
   list-style: none;
   display: grid;
@@ -16,6 +23,7 @@
   padding: 0;
   font-weight: bold;
 
+  // Individual taxonomy item styling.
   .taxonomy {
     display: flex;
     padding: 0.25em 0;
@@ -27,12 +35,15 @@
   }
 }
 
+// Styling for post lists within taxonomy archive pages.
 .post-list-by-taxonomy {
+  // Styles for time elements within post lists.
   time {
     font-family: var(--code-font);
   }
 }
 
+// Styles for the "Back to top" link.
 .back-to-top {
   display: block;
   font-size: 0.8em;
@@ -41,7 +52,9 @@
   text-decoration: none;
 }
 
+// Media query for smaller screens (e.g., mobile).
 @media (max-width: $sm-width) {
+  // Adjusts the taxonomy grid to two columns on small screens.
   .taxonomies {
     grid-template-columns: repeat(2, 1fr);
   }

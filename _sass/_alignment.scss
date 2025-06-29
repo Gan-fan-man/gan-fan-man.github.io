@@ -1,33 +1,43 @@
-// Alignment
-//
-// Some pre-defined selectors for handling the image alignment.
+/*
+ * File: _alignment.scss
+ * Description: This file provides pre-defined SCSS classes for image and figcaption alignment.
+ */
 
+// Importing variables for consistent styling across the project.
+@use "variables" as *;
+
+// Styles for aligning content to the right.
 .align-right {
   margin-bottom: 1rem;
   margin-left: 1rem;
   float: right;
 }
 
+// Styles for aligning content to the left.
 .align-left {
   margin-right: 1rem;
   margin-bottom: 1rem;
   float: left;
 }
 
+// Styles for centering block-level content.
 .align-center {
   display: block;
   margin-right: auto;
   margin-left: auto;
 }
 
+// Specific alignment for figcaption elements when aligned to the right.
 figcaption.align-right {
   text-align: right;
 }
 
+// Specific alignment for figcaption elements when aligned to the left.
 figcaption.align-left {
   text-align: left;
 }
 
+// Specific alignment for figcaption elements when centered.
 figcaption.align-center {
   text-align: center;
 }
