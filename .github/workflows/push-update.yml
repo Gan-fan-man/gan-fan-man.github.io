@@ -34,7 +34,7 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: ${{ env.RUBY_VERSION }}
+          ruby-version: '3.3.6'
           bundler-cache: true
           cache-version: 1
 
