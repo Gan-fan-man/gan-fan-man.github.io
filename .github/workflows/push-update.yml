@@ -38,13 +38,9 @@ jobs:
           bundler-cache: true
           cache-version: 1
 
-      - name: Install Jekyll dependencies
-        run: |
-          gem install jekyll -v ${{ env.JEKYLL_VERSION }}
-          bundle install
-
       - name: Build Jekyll site
-        run: bundle exec jekyll build --destination ./_site
+        run: |
+          bundle exec jekyll build --destination ./_site
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
