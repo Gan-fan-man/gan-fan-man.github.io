@@ -1,0 +1,502 @@
+---
+layout: tool
+title: 单位换算
+permalink: /tool/单位换算/
+---
+
+<style>
+    input[type="text"],
+    input[type="number"],
+    select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        font-size: 1em;
+        font-family: var(--body-font);
+        box-sizing: border-box;
+        background-color: var(--tool-input-bg, var(--gray-100));
+        color: var(--body-color);
+        line-height: 1.5;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus {
+        border-color: var(--link-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(var(--link-color-rgb), 0.25);
+    }
+
+    .conversion-block, .calculation-block {
+        background-color: var(--tool-content-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 25px;
+        box-shadow: var(--tool-content-shadow);
+        box-sizing: border-box;
+    }
+
+    .conversion-block h3, .calculation-block h3 {
+        color: var(--heading-color);
+        margin-top: 0;
+        margin-bottom: 20px;
+        font-size: 1.4em;
+        border-bottom: 1px solid var(--link-color);
+        padding-bottom: 10px;
+    }
+
+    .input-group, .output-group {
+        margin-bottom: 15px;
+    }
+
+    .input-group label, .output-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: var(--heading-color);
+    }
+
+    .output-value {
+        background-color: var(--code-bg);
+        padding: 10px;
+        border-radius: 4px;
+        min-height: 20px;
+        word-break: break-all;
+        color: var(--body-color);
+    }
+
+    .flex-group {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 15px;
+        align-items: flex-end;
+    }
+
+    .flex-group > div {
+        flex: 1;
+    }
+
+    .flex-group button {
+        padding: 10px 20px;
+        background-color: var(--link-color);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1em;
+        transition: background-color 0.3s ease;
+    }
+
+    .flex-group button:hover {
+        background-color: var(--link-hover-color);
+    }
+
+    @media (max-width: 768px) {
+        .flex-group {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+</style>
+<h1>单位换算&计算</h1>
+<script>
+    const unitConversions = {
+        length: {
+            'meter': { name: '米 (m)', toMeters: 1 },
+            'kilometer': { name: '千米 (km)', toMeters: 1000 },
+            'centimeter': { name: '厘米 (cm)', toMeters: 0.01 },
+            'millimeter': { name: '毫米 (mm)', toMeters: 0.001 },
+            'micrometer': { name: '微米 (μm)', toMeters: 1e-6 },
+            'nanometer': { name: '纳米 (nm)', toMeters: 1e-9 },
+            'inch': { name: '英寸 (in)', toMeters: 0.0254 },
+            'feet': { name: '英尺 (ft)', toMeters: 0.3048 },
+            'yard': { name: '码 (yd)', toMeters: 0.9144 },
+            'mile': { name: '英里 (mi)', toMeters: 1609.34 },
+            'nautical_mile': { name: '海里 (nmi)', toMeters: 1852 },
+            'light_year': { name: '光年 (ly)', toMeters: 9.461e+15 },
+            'astronomical_unit': { name: '天文单位 (AU)', toMeters: 1.496e+11 },
+            'parsec': { name: '秒差距 (pc)', toMeters: 3.086e+16 }
+        },
+        area: {
+            'square_meter': { name: '平方米 (m²)', toSqMeters: 1 },
+            'square_kilometer': { name: '平方千米 (km²)', toSqMeters: 1e+6 },
+            'square_centimeter': { name: '平方厘米 (cm²)', toSqMeters: 1e-4 },
+            'square_millimeter': { name: '平方毫米 (mm²)', toSqMeters: 1e-6 },
+            'acre': { name: '英亩 (ac)', toSqMeters: 4046.86 },
+            'hectare': { name: '公顷 (ha)', toSqMeters: 10000 },
+            'square_inch': { name: '平方英寸 (in²)', toSqMeters: 0.00064516 },
+            'square_feet': { name: '平方英尺 (ft²)', toSqMeters: 0.092903 },
+            'square_yard': { name: '平方码 (yd²)', toSqMeters: 0.836127 },
+            'square_mile': { name: '平方英里 (mi²)', toSqMeters: 2.59e+6 }
+        },
+        volume: {
+            'cubic_meter': { name: '立方米 (m³)', toCubicMeters: 1 },
+            'cubic_centimeter': { name: '立方厘米 (cm³)', toCubicMeters: 1e-6 },
+            'liter': { name: '升 (L)', toCubicMeters: 0.001 },
+            'milliliter': { name: '毫升 (mL)', toCubicMeters: 1e-6 },
+            'gallon_us': { name: '美制加仑 (gal)', toCubicMeters: 0.00378541 },
+            'cubic_inch': { name: '立方英寸 (in³)', toCubicMeters: 1.63871e-5 },
+            'cubic_feet': { name: '立方英尺 (ft³)', toCubicMeters: 0.0283168 },
+            'cubic_yard': { name: '立方码 (yd³)', toCubicMeters: 0.764555 }
+        },
+        weight: {
+            'kilogram': { name: '千克 (kg)', toKilograms: 1 },
+            'gram': { name: '克 (g)', toKilograms: 0.001 },
+            'milligram': { name: '毫克 (mg)', toKilograms: 1e-6 },
+            'pound': { name: '磅 (lb)', toKilograms: 0.453592 },
+            'ounce': { name: '盎司 (oz)', toKilograms: 0.0283495 },
+            'ton_metric': { name: '公吨 (t)', toKilograms: 1000 }
+        },
+        time: {
+            'second': { name: '秒 (s)', toSeconds: 1 },
+            'millisecond': { name: '毫秒 (ms)', toSeconds: 0.001 },
+            'minute': { name: '分 (min)', toSeconds: 60 },
+            'hour': { name: '小时 (h)', toSeconds: 3600 },
+            'day': { name: '天 (d)', toSeconds: 86400 },
+            'week': { name: '周', toSeconds: 604800 },
+            'year': { name: '年 (平年)', toSeconds: 31536000 }
+        },
+        force: {
+            'newton': { name: '牛顿 (N)', toNewtons: 1 },
+            'kilonewton': { name: '千牛 (kN)', toNewtons: 1000 },
+            'dyne': { name: '达因 (dyn)', toNewtons: 1e-5 },
+            'kilogram_force': { name: '千克力 (kgf)', toNewtons: 9.80665 },
+            'pound_force': { name: '磅力 (lbf)', toNewtons: 4.44822 }
+        },
+        power: {
+            'watt': { name: '瓦特 (W)', toWatts: 1 },
+            'kilowatt': { name: '千瓦 (kW)', toWatts: 1000 },
+            'horsepower_metric': { name: '米制马力 (PS)', toWatts: 735.49875 },
+            'horsepower_imperial': { name: '英制马力 (hp)', toWatts: 745.7 },
+            'btu_per_hour': { name: '英热单位每小时 (BTU/h)', toWatts: 0.293071 }
+        },
+        speed: {
+            'meter_per_second': { name: '米/秒 (m/s)', toMetersPerSecond: 1 },
+            'kilometer_per_hour': { name: '千米/小时 (km/h)', toMetersPerSecond: 0.277778 },
+            'mile_per_hour': { name: '英里/小时 (mph)', toMetersPerSecond: 0.44704 },
+            'knot': { name: '节 (kn)', toMetersPerSecond: 0.514444 },
+            'feet_per_second': { name: '英尺/秒 (ft/s)', toMetersPerSecond: 0.3048 }
+        }
+    };
+
+    function createConversionBlock(idPrefix, units) {
+        const block = document.createElement('div');
+        block.className = 'conversion-block';
+
+        let titleText = '';
+        switch (idPrefix) {
+            case 'length':
+                titleText = '长度换算';
+                break;
+            case 'area':
+                titleText = '面积换算';
+                break;
+            case 'volume':
+                titleText = '体积换算';
+                break;
+            case 'weight':
+                titleText = '重量换算';
+                break;
+            case 'time':
+                titleText = '时间换算';
+                break;
+            case 'force':
+                titleText = '力换算';
+                break;
+            case 'power':
+                titleText = '功率换算';
+                break;
+            case 'speed':
+                titleText = '速度换算';
+                break;
+            default:
+                titleText = `${idPrefix.charAt(0).toUpperCase() + idPrefix.slice(1)} 换算`;
+        }
+
+
+        block.innerHTML = `
+            <h3>${titleText}</h3>
+            <div class="input-group">
+                <label for="${idPrefix}Value">数值:</label>
+                <input type="number" id="${idPrefix}Value" value="1">
+            </div>
+            <div class="flex-group">
+                <div>
+                    <label for="${idPrefix}FromUnit">从:</label>
+                    <select id="${idPrefix}FromUnit"></select>
+                </div>
+                <div>
+                    <label for="${idPrefix}ToUnit">到:</label>
+                    <select id="${idPrefix}ToUnit"></select>
+                </div>
+            </div>
+            <div class="output-group">
+                <label>结果:</label>
+                <div id="${idPrefix}Result" class="output-value"></div>
+            </div>
+        `;
+        document.querySelector('main .tool-page-container').appendChild(block);
+
+        const valueInput = document.getElementById(`${idPrefix}Value`);
+        const fromUnitSelect = document.getElementById(`${idPrefix}FromUnit`);
+        const toUnitSelect = document.getElementById(`${idPrefix}ToUnit`);
+        const resultDiv = document.getElementById(`${idPrefix}Result`);
+
+        for (const key in units) {
+            const option1 = document.createElement('option');
+            option1.value = key;
+            option1.textContent = units[key].name;
+            fromUnitSelect.appendChild(option1);
+
+            const option2 = document.createElement('option');
+            option2.value = key;
+            option2.textContent = units[key].name;
+            toUnitSelect.appendChild(option2);
+        }
+
+        if (Object.keys(units).length >= 2) {
+            fromUnitSelect.value = Object.keys(units)[0];
+            toUnitSelect.value = Object.keys(units)[1];
+        }
+
+
+        function convert() {
+            const value = parseFloat(valueInput.value);
+            const fromUnit = fromUnitSelect.value;
+            const toUnit = toUnitSelect.value;
+
+            if (isNaN(value)) {
+                resultDiv.textContent = "请输入有效数字";
+                return;
+            }
+
+            const factorName = `to${idPrefix.charAt(0).toUpperCase() + idPrefix.slice(1)}s`;
+            let baseValue;
+
+            if (units[fromUnit][factorName]) {
+                 baseValue = value * units[fromUnit][factorName];
+            } else {
+                 const firstKey = Object.keys(units)[0];
+                 const firstFactorName = Object.keys(units[firstKey]).find(key => key.startsWith('to') && key !== 'name');
+                 if (firstFactorName) {
+                    baseValue = value * units[fromUnit][firstFactorName];
+                 } else {
+                    resultDiv.textContent = "转换逻辑错误：未找到基准单位因子。";
+                    return;
+                 }
+            }
+
+
+            let convertedValue;
+            if (units[toUnit][factorName]) {
+                convertedValue = baseValue / units[toUnit][factorName];
+            } else {
+                 const firstKey = Object.keys(units)[0];
+                 const firstFactorName = Object.keys(units[firstKey]).find(key => key.startsWith('to') && key !== 'name');
+                 if (firstFactorName) {
+                    convertedValue = baseValue / units[toUnit][firstFactorName];
+                 } else {
+                    resultDiv.textContent = "转换逻辑错误：未找到基准单位因子。";
+                    return;
+                 }
+            }
+
+
+            resultDiv.textContent = `${convertedValue.toFixed(6)} ${units[toUnit].name.split(' ')[1]}`;
+        }
+
+        valueInput.addEventListener('input', convert);
+        fromUnitSelect.addEventListener('change', convert);
+        toUnitSelect.addEventListener('change', convert);
+
+        convert();
+    }
+
+    function createHeatWorkConversionBlock() {
+        const block = document.createElement('div');
+        block.className = 'calculation-block';
+        block.innerHTML = `
+            <h3>热量与功换算</h3>
+            <div class="input-group">
+                <label for="heatWorkValue">数值:</label>
+                <input type="number" id="heatWorkValue" value="1">
+            </div>
+            <div class="flex-group">
+                <div>
+                    <label for="heatWorkFromUnit">从:</label>
+                    <select id="heatWorkFromUnit">
+                        <option value="Joule">焦耳 (J)</option>
+                        <option value="calorie">卡路里 (cal)</option>
+                        <option value="kilocalorie">千卡 (kcal)</option>
+                        <option value="BTU">英热单位 (BTU)</option>
+                        <option value="kWh">千瓦时 (kWh)</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="heatWorkToUnit">到:</label>
+                    <select id="heatWorkToUnit">
+                        <option value="Joule">焦耳 (J)</option>
+                        <option value="calorie">卡路里 (cal)</option>
+                        <option value="kilocalorie">千卡 (kcal)</option>
+                        <option value="BTU">英热单位 (BTU)</option>
+                        <option value="kWh">千瓦时 (kWh)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="output-group">
+                <label>结果:</label>
+                <div id="heatWorkResult" class="output-value"></div>
+            </div>
+        `;
+        document.querySelector('main .tool-page-container').appendChild(block);
+
+        const valueInput = document.getElementById('heatWorkValue');
+        const fromUnitSelect = document.getElementById('heatWorkFromUnit');
+        const toUnitSelect = document.getElementById('heatWorkToUnit');
+        const resultDiv = document.getElementById('heatWorkResult');
+
+        const factors = {
+            'Joule': 1,
+            'calorie': 4.184,
+            'kilocalorie': 4184,
+            'BTU': 1055.06,
+            'kWh': 3.6e+6
+        };
+
+        function convertHeatWork() {
+            const value = parseFloat(valueInput.value);
+            const fromUnit = fromUnitSelect.value;
+            const toUnit = toUnitSelect.value;
+
+            if (isNaN(value)) {
+                resultDiv.textContent = "请输入有效数字";
+                return;
+            }
+
+            const baseValue = value * factors[fromUnit];
+            const convertedValue = baseValue / factors[toUnit];
+
+            resultDiv.textContent = convertedValue.toFixed(6);
+        }
+
+        valueInput.addEventListener('input', convertHeatWork);
+        fromUnitSelect.addEventListener('change', convertHeatWork);
+        toUnitSelect.addEventListener('change', convertHeatWork);
+        convertHeatWork();
+    }
+
+
+    function createTemperatureConversionBlock() {
+        const block = document.createElement('div');
+        block.className = 'calculation-block';
+        block.innerHTML = `
+            <h3>温度换算</h3>
+            <div class="input-group">
+                <label for="tempValue">数值:</label>
+                <input type="number" id="tempValue" value="0">
+            </div>
+            <div class="flex-group">
+                <div>
+                    <label for="tempFromUnit">从:</label>
+                    <select id="tempFromUnit">
+                        <option value="C">摄氏度 (°C)</option>
+                        <option value="F">华氏度 (°F)</option>
+                        <option value="K">开尔文 (K)</option>
+                        <option value="R">兰氏度 (°R)</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="tempToUnit">到:</label>
+                    <select id="tempToUnit">
+                        <option value="C">摄氏度 (°C)</option>
+                        <option value="F">华氏度 (°F)</option>
+                        <option value="K">开尔文 (K)</option>
+                        <option value="R">兰氏度 (°R)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="output-group">
+                <label>结果:</label>
+                <div id="tempResult" class="output-value"></div>
+            </div>
+        `;
+        document.querySelector('main .tool-page-container').appendChild(block);
+
+        const valueInput = document.getElementById('tempValue');
+        const fromUnitSelect = document.getElementById('tempFromUnit');
+        const toUnitSelect = document.getElementById('tempToUnit');
+        const resultDiv = document.getElementById('tempResult');
+
+        function convertTemp() {
+            const value = parseFloat(valueInput.value);
+            const fromUnit = fromUnitSelect.value;
+            const toUnit = toUnitSelect.value;
+
+            if (isNaN(value)) {
+                resultDiv.textContent = "请输入有效数字";
+                return;
+            }
+
+            let celsius;
+            switch (fromUnit) {
+                case 'C':
+                    celsius = value;
+                    break;
+                case 'F':
+                    celsius = (value - 32) * 5 / 9;
+                    break;
+                case 'K':
+                    celsius = value - 273.15;
+                    break;
+                case 'R':
+                    celsius = (value - 491.67) * 5 / 9;
+                    break;
+            }
+
+            let convertedValue;
+            let unitSymbol = '';
+
+            switch (toUnit) {
+                case 'C':
+                    convertedValue = celsius;
+                    unitSymbol = '°C';
+                    break;
+                case 'F':
+                    convertedValue = (celsius * 9 / 5) + 32;
+                    unitSymbol = '°F';
+                    break;
+                case 'K':
+                    convertedValue = celsius + 273.15;
+                    unitSymbol = 'K';
+                    break;
+                case 'R':
+                    convertedValue = (celsius + 273.15) * 9 / 5;
+                    unitSymbol = '°R';
+                    break;
+            }
+
+            resultDiv.textContent = `${convertedValue.toFixed(4)} ${unitSymbol}`;
+        }
+
+        valueInput.addEventListener('input', convertTemp);
+        fromUnitSelect.addEventListener('change', convertTemp);
+        toUnitSelect.addEventListener('change', convertTemp);
+        convertTemp();
+    }
+
+    window.onload = () => {
+        createConversionBlock('length', unitConversions.length);
+        createConversionBlock('area', unitConversions.area);
+        createConversionBlock('volume', unitConversions.volume);
+        createConversionBlock('weight', unitConversions.weight);
+        createConversionBlock('time', unitConversions.time);
+        createConversionBlock('force', unitConversions.force);
+        createConversionBlock('power', unitConversions.power);
+        createConversionBlock('speed', unitConversions.speed);
+        createHeatWorkConversionBlock();
+        createTemperatureConversionBlock();
+    };
+
+</script>

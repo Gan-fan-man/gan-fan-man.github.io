@@ -1,0 +1,903 @@
+---
+layout: page
+title: 日语测试
+permalink: /tool/日语测试/
+---
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    .tool-wrapper {
+        width: 80%;
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: var(--tool-content-bg);
+        border-radius: 8px;
+        box-shadow: var(--tool-content-shadow);
+        box-sizing: border-box;
+        position: relative;
+        min-height: 500px;
+    }
+
+    @media (max-width: 768px) {
+        .tool-wrapper {
+            width: 95%;
+            margin: 15px auto;
+            padding: 15px;
+        }
+    }
+
+    .tool-wrapper h1 {
+        text-align: center;
+        color: var(--nav-link-color);
+        margin-top: 0;
+        margin-bottom: 20px;
+    }
+
+
+    .tool-section {
+        margin-bottom: 20px;
+        padding: 15px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background-color: var(--tool-input-bg);
+    }
+
+    .tool-section h3 {
+        margin-top: 0;
+        color: var(--tool-content-color);
+    }
+
+    .tool-options-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        flex-direction: column; 
+    }
+
+    .tool-options {
+        display: block;
+        width: 100%; 
+    }
+
+    .tool-options h4 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        color: var(--tool-content-color);
+        width: 100%; 
+    }
+
+    .option-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 5px;
+        margin-bottom: 10px;
+    }
+
+    .option-list label {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0;
+        color: var(--tool-content-color);
+        white-space: nowrap;
+    }
+
+    .tool-options input[type="checkbox"],
+    .tool-options input[type="radio"],
+    .tool-options input[type="number"],
+    .tool-options select {
+        margin-right: 5px;
+        margin-bottom: 0;
+    }
+
+    #testQuantityContainer {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 5px;
+        margin-bottom: 10px;
+    }
+
+    #testQuantityRange {
+        flex-grow: 1;
+        margin-bottom: 0;
+        padding: 0;
+        -webkit-appearance: none;
+        appearance: none;
+        height: 8px;
+        background: var(--tool-input-border);
+        border-radius: 5px;
+        outline: none;
+        transition: opacity .2s;
+    }
+
+    #testQuantityRange::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        background: var(--link-color);
+        border-radius: 50%;
+        cursor: pointer;
+        border: 1px solid var(--link-hover-color);
+        box-shadow: 0px 0px 5px rgba(0,0,0,0.2);
+    }
+
+    #testQuantityRange::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        background: var(--link-color);
+        border-radius: 50%;
+        cursor: pointer;
+        border: 1px solid var(--link-hover-color);
+        box-shadow: 0px 0px 5px rgba(0,0,0,0.2);
+    }
+
+    #testQuantityValue {
+        display: inline-block;
+        width: 80px;
+        text-align: right;
+        font-weight: bold;
+        color: var(--nav-link-color);
+        white-space: nowrap;
+    }
+
+    .tool-input {
+        background-color: var(--tool-input-bg);
+        color: var(--tool-input-color);
+        border: 1px solid var(--tool-input-border);
+        padding: 10px;
+        border-radius: 4px;
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+    }
+
+    .tool-button {
+        background-color: var(--tool-button-bg);
+        color: var(--tool-button-color);
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        margin-right: 10px;
+    }
+
+    .tool-button:hover {
+        background-color: var(--tool-button-hover-bg);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    #startTestButton {
+        background-color: var(--link-color);
+    }
+
+    #startTestButton:hover {
+        background-color: var(--link-hover-color);
+    }
+
+    .tool-button:disabled {
+        background-color: var(--gray-400);
+        cursor: not-allowed;
+        opacity: 0.7;
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .tool-button:disabled:hover {
+        background-color: var(--gray-400);
+    }
+
+    .test-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--tool-content-bg);
+        z-index: 10;
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    .test-active .test-overlay {
+        display: flex;
+    }
+
+    #currentKana {
+        font-size: 8em;
+        font-weight: bold;
+        color: var(--nav-link-color);
+        margin-bottom: 30px;
+        text-align: center;
+        min-height: 1.5em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #answerInput {
+        width: 60%;
+        max-width: 300px;
+        font-size: 1.5em;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .test-navigation-buttons {
+        display: flex;
+        gap: 20px;
+    }
+
+    #testResults {
+        width: 100%;
+        text-align: left;
+        color: var(--tool-content-color);
+    }
+
+    #testResults h3 {
+        color: var(--nav-link-color);
+    }
+
+    #testResults ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    #testResults li {
+        margin-bottom: 8px;
+        padding: 5px;
+        border-bottom: 1px dashed var(--border-color);
+    }
+    
+    .wrong-answer-text {
+        color: var(--red);
+    }
+
+    #wrongBookSection {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .wrong-book-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    #wrongBookSection h3 {
+        margin-top: 0;
+        margin-bottom: 0;
+        color: var(--tool-content-color);
+    }
+
+    #wrongBookList li {
+        margin-bottom: 8px;
+        padding: 5px;
+        border-bottom: 1px dashed var(--border-color);
+    }
+
+    .wrong-kana-count {
+        font-weight: bold;
+        color: var(--link-color);
+        margin-right: 5px;
+    }
+    
+    .modal-overlay {
+        position:fixed;
+        top:0;
+        left:0;
+        width:100%;
+        height:100%;
+        background:rgba(0,0,0,0.5);
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        z-index:1000;
+    }
+
+    .modal-content {
+        background: var(--tool-content-bg);
+        color: var(--tool-content-color);
+        padding:30px;
+        border-radius:8px;
+        text-align:center;
+        box-shadow: var(--tool-content-shadow);
+    }
+
+    .modal-content p {
+        margin:0 0 20px;
+        color: var(--tool-content-color);
+    }
+    
+    #customConfirmModal {
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+    #customConfirmModal.visible {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .confirm-modal-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+    }
+
+    .confirm-modal-buttons .confirm-ok {
+        background-color: var(--red);
+    }
+
+    .confirm-modal-buttons .confirm-ok:hover {
+        background-color: #d94848;
+    }
+    
+    .confirm-modal-buttons .confirm-cancel {
+        background-color: var(--gray-600);
+    }
+
+    .confirm-modal-buttons .confirm-cancel:hover {
+        background-color: var(--gray-700);
+    }
+    .correct-answer-text {
+        color: var(--green);
+    }
+
+</style>
+</head>
+<body>
+
+<div class="tool-wrapper" id="kanaTestTool">
+    <h1>日语测试</h1>
+    <div id="setupSection" class="tool-section">
+        <h3>测试设置</h3>
+        <div class="tool-options-group">
+            <div class="tool-options">
+                <h4>假名类型：</h4>
+                <div class="option-list">
+                    <label><input type="checkbox" name="kanaType" value="hiragana" checked> 平假名</label>
+                    <label><input type="checkbox" name="kanaType" value="katakana"> 片假名</label>
+                </div>
+            </div>
+
+            <div class="tool-options">
+                <h4>音节类型：</h4>
+                <div class="option-list">
+                    <label><input type="checkbox" name="soundType" value="seion" checked> 清音</label>
+                    <label><input type="checkbox" name="soundType" value="dakuon"> 浊音</label>
+                    <label><input type="checkbox" name="soundType" value="handakuon"> 半浊音</label>
+                    <label><input type="checkbox" name="soundType" value="youon"> 拗音</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="tool-options">
+            <label for="testQuantityRange"><h4>测试数量：</h4></label>
+            <div id="testQuantityContainer">
+                <input type="range" id="testQuantityRange" class="tool-input" min="1" max="100" value="10">
+                <span id="testQuantityValue">10</span>
+            </div>
+        </div>
+
+        <button id="startTestButton" class="tool-button">开始测试</button>
+    </div>
+
+    <div id="wrongBookSection" class="tool-section">
+        <div class="wrong-book-header">
+            <h3>:page_facing_up:我的错题本</h3>
+            <button id="clearWrongBookButton" class="tool-button" style="display: none;">清空错题本</button>
+        </div>
+        <div id="wrongBookContent">
+            <p id="noWrongQuestionsMessage">目前无错题</p>
+            <ul id="wrongBookList"></ul>
+        </div>
+    </div>
+
+    <div id="testOverlay" class="test-overlay">
+        <div id="currentKana"></div>
+        <input type="text" id="answerInput" placeholder="输入罗马音">
+        <div class="test-navigation-buttons">
+            <button id="prevButton" class="tool-button">上一个</button>
+            <button id="nextButton" class="tool-button">下一个</button>
+            <button id="endTestButton" class="tool-button">结束测试</button>
+        </div>
+    </div>
+
+    <div id="resultsSection" class="tool-section" style="display: none;">
+        <h3>测试结果</h3>
+        <p>总题目数: <span id="totalQuestions"></span></p>
+        <p>正确数: <span id="correctAnswers"></span></p>
+        <p>错误数: <span id="wrongAnswers"></span></p>
+        <h4>错题回顾:</h4>
+        <ul id="wrongQuestionsList"></ul>
+        <button id="finishButton" class="tool-button">完成</button>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    function getCookie(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for(let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
+    }
+
+    const kanaData = {
+        hiragana: {
+            seion: [
+                { kana: 'あ', romaji: 'a' }, { kana: 'い', romaji: 'i' }, { kana: 'う', romaji: 'u' }, { kana: 'え', romaji: 'e' }, { kana: 'お', romaji: 'o' },
+                { kana: 'か', romaji: 'ka' }, { kana: 'き', romaji: 'ki' }, { kana: 'く', romaji: 'ku' }, { kana: 'け', romaji: 'ke' }, { kana: 'こ', romaji: 'ko' },
+                { kana: 'さ', romaji: 'sa' }, { kana: 'し', romaji: 'shi' }, { kana: 'す', romaji: 'su' }, { kana: 'せ', romaji: 'se' }, { kana: 'そ', romaji: 'so' },
+                { kana: 'た', romaji: 'ta' }, { kana: 'ち', romaji: 'chi' }, { kana: 'つ', romaji: 'tsu' }, { kana: 'て', romaji: 'te' }, { kana: 'と', romaji: 'to' },
+                { kana: 'な', romaji: 'na' }, { kana: 'に', romaji: 'ni' }, { kana: 'ぬ', romaji: 'nu' }, { kana: 'ね', romaji: 'ne' }, { kana: 'の', romaji: 'no' },
+                { kana: 'は', romaji: 'ha' }, { kana: 'ひ', romaji: 'hi' }, { kana: 'ふ', romaji: 'fu' }, { kana: 'へ', romaji: 'he' }, { kana: 'ほ', romaji: 'ho' },
+                { kana: 'ま', romaji: 'ma' }, { kana: 'み', romaji: 'mi' }, { kana: 'む', romaji: 'mu' }, { kana: 'め', romaji: 'me' }, { kana: 'も', romaji: 'mo' },
+                { kana: 'や', romaji: 'ya' }, { kana: 'ゆ', romaji: 'yu' }, { kana: 'よ', romaji: 'yo' },
+                { kana: 'ら', romaji: 'ra' }, { kana: 'り', romaji: 'ri' }, { kana: 'る', romaji: 'ru' }, { kana: 'れ', romaji: 're' }, { kana: 'ろ', romaji: 'ro' },
+                { kana: 'わ', romaji: 'wa' }, { kana: 'を', romaji: 'wo' }, { kana: 'ん', romaji: 'n' }
+            ],
+            dakuon: [
+                { kana: 'が', romaji: 'ga' }, { kana: 'ぎ', romaji: 'gi' }, { kana: 'ぐ', romaji: 'gu' }, { kana: 'げ', romaji: 'ge' }, { kana: 'ご', romaji: 'go' },
+                { kana: 'ざ', romaji: 'za' }, { kana: 'じ', romaji: 'ji' }, { kana: 'ず', romaji: 'zu' }, { kana: 'ぜ', romaji: 'ze' }, { kana: 'ぞ', romaji: 'zo' },
+                { kana: 'だ', romaji: 'da' }, { kana: 'ぢ', romaji: 'ji' }, { kana: 'づ', romaji: 'zu' }, { kana: 'で', romaji: 'de' }, { kana: 'ど', romaji: 'do' },
+                { kana: 'ば', romaji: 'ba' }, { kana: 'び', romaji: 'bi' }, { kana: 'ぶ', romaji: 'bu' }, { kana: 'べ', romaji: 'be' }, { kana: 'ぼ', romaji: 'bo' }
+            ],
+            handakuon: [
+                { kana: 'ぱ', romaji: 'pa' }, { kana: 'ぴ', romaji: 'pi' }, { kana: 'ぷ', romaji: 'pu' }, { kana: 'ぺ', romaji: 'pe' }, { kana: 'ぽ', romaji: 'po' }
+            ],
+            youon: [
+                { kana: 'きゃ', romaji: 'kya' }, { kana: 'きゅ', romaji: 'kyu' }, { kana: 'きょ', romaji: 'kyo' },
+                { kana: 'しゃ', romaji: 'sha' }, { kana: 'しゅ', romaji: 'shu' }, { kana: 'しょ', romaji: 'sho' },
+                { kana: 'ちゃ', romaji: 'cha' }, { kana: 'ちゅ', romaji: 'chu' }, { kana: 'ちょ', romaji: 'cho' },
+                { kana: 'にゃ', romaji: 'nya' }, { kana: 'にゅ', romaji: 'nyu' }, { kana: 'にょ', romaji: 'nyo' },
+                { kana: 'ひゃ', romaji: 'hya' }, { kana: 'ひゅ', romaji: 'hyu' }, { kana: 'ひょ', romaji: 'hyo' },
+                { kana: 'みゃ', romaji: 'mya' }, { kana: 'みゅ', romaji: 'myu' }, { kana: 'みょ', romaji: 'myo' },
+                { kana: 'りゃ', romaji: 'rya' }, { kana: 'りゅ', romaji: 'ryu' }, { kana: 'りょ', romaji: 'ryo' },
+                { kana: 'ぎゃ', romaji: 'gya' }, { kana: 'ぎゅ', romaji: 'gyu' }, { kana: 'ぎょ', romaji: 'gyo' },
+                { kana: 'じゃ', romaji: 'ja' }, { kana: 'じゅ', romaji: 'ju' }, { kana: 'じょ', romaji: 'jo' },
+                { kana: 'ぢゃ', romaji: 'ja' }, { kana: 'ぢゅ', romaji: 'ju' }, { kana: 'ぢょ', romaji: 'jo' },
+                { kana: 'びゃ', romaji: 'bya' }, { kana: 'びゅ', romaji: 'byu' }, { kana: 'びょ', romaji: 'byo' },
+                { kana: 'ぴゃ', romaji: 'pya' }, { kana: 'ぴゅ', romaji: 'pyu' }, { kana: 'ぴょ', romaji: 'pyo' }
+            ]
+        },
+        katakana: {
+            seion: [
+                { kana: 'ア', romaji: 'a' }, { kana: 'イ', romaji: 'i' }, { kana: 'ウ', romaji: 'u' }, { kana: 'エ', romaji: 'e' }, { kana: 'オ', romaji: 'o' },
+                { kana: 'カ', romaji: 'ka' }, { kana: 'キ', romaji: 'ki' }, { kana: 'ク', romaji: 'ku' }, { kana: 'ケ', romaji: 'ke' }, { kana: 'コ', romaji: 'ko' },
+                { kana: 'サ', romaji: 'sa' }, { kana: 'シ', romaji: 'shi' }, { kana: 'ス', romaji: 'su' }, { kana: 'セ', romaji: 'se' }, { kana: 'ソ', romaji: 'so' },
+                { kana: 'タ', romaji: 'ta' }, { kana: 'チ', romaji: 'chi' }, { kana: 'ツ', romaji: 'tsu' }, { kana: 'テ', romaji: 'te' }, { kana: 'ト', romaji: 'to' },
+                { kana: 'ナ', romaji: 'na' }, { kana: 'ニ', romaji: 'ni' }, { kana: 'ヌ', romaji: 'nu' }, { kana: 'ネ', romaji: 'ne' }, { kana: 'ノ', romaji: 'no' },
+                { kana: 'ハ', romaji: 'ha' }, { kana: 'ヒ', romaji: 'hi' }, { kana: 'フ', romaji: 'fu' }, { kana: 'ヘ', romaji: 'he' }, { kana: 'ホ', romaji: 'ho' },
+                { kana: 'マ', romaji: 'ma' }, { kana: 'ミ', romaji: 'mi' }, { kana: 'ム', romaji: 'mu' }, { kana: 'メ', romaji: 'me' }, { kana: 'モ', romaji: 'mo' },
+                { kana: 'ヤ', romaji: 'ya' }, { kana: 'ユ', romaji: 'yu' }, { kana: 'ヨ', romaji: 'yo' },
+                { kana: 'ラ', romaji: 'ra' }, { kana: 'リ', romaji: 'ri' }, { kana: 'ル', romaji: 'ru' }, { kana: 'レ', romaji: 're' }, { kana: 'ロ', romaji: 'ro' },
+                { kana: 'ワ', romaji: 'wa' }, { kana: 'ヲ', romaji: 'wo' }, { kana: 'ン', romaji: 'n' }
+            ],
+            dakuon: [
+                { kana: 'ガ', romaji: 'ga' }, { kana: 'ギ', romaji: 'gi' }, { kana: 'グ', romaji: 'gu' }, { kana: 'ゲ', romaji: 'ge' }, { kana: 'ゴ', romaji: 'go' },
+                { kana: 'ザ', romaji: 'za' }, { kana: 'ジ', romaji: 'ji' }, { kana: 'ズ', romaji: 'zu' }, { kana: 'ゼ', romaji: 'ze' }, { kana: 'ゾ', romaji: 'zo' },
+                { kana: 'ダ', romaji: 'da' }, { kana: 'ヂ', romaji: 'ji' }, { kana: 'ヅ', romaji: 'zu' }, { kana: 'デ', romaji: 'de' }, { kana: 'ド', romaji: 'do' },
+                { kana: 'バ', romaji: 'ba' }, { kana: 'ビ', romaji: 'bi' }, { kana: 'ブ', romaji: 'bu' }, { kana: 'ベ', romaji: 'be' }, { kana: 'ボ', romaji: 'bo' }
+            ],
+            handakuon: [
+                { kana: 'パ', romaji: 'pa' }, { kana: 'ピ', romaji: 'pi' }, { kana: 'プ', romaji: 'pu' }, { kana: 'ペ', romaji: 'pe' }, { kana: 'ポ', romaji: 'po' }
+            ],
+            youon: [
+                { kana: 'キャ', romaji: 'kya' }, { kana: 'キュ', romaji: 'kyu' }, { kana: 'キョ', romaji: 'kyo' },
+                { kana: 'シャ', romaji: 'sha' }, { kana: 'シュ', romaji: 'shu' }, { kana: 'ショ', romaji: 'sho' },
+                { kana: 'チャ', romaji: 'cha' }, { kana: 'チュ', romaji: 'chu' }, { kana: 'チョ', romaji: 'cho' },
+                { kana: 'ニャ', romaji: 'nya' }, { kana: 'ニュ', romaji: 'nyu' }, { kana: 'ニョ', romaji: 'nyo' },
+                { kana: 'ヒャ', romaji: 'hya' }, { kana: 'ヒュ', romaji: 'hyu' }, { kana: 'ヒョ', romaji: 'hyo' },
+                { kana: 'ミャ', romaji: 'mya' }, { kana: 'ミュ', romaji: 'myu' }, { kana: 'ミョ', romaji: 'myo' },
+                { kana: 'リャ', romaji: 'rya' }, { kana: 'リュ', romaji: 'ryu' }, { kana: 'リョ', romaji: 'ryo' },
+                { kana: 'ギャ', romaji: 'gya' }, { kana: 'ギュ', romaji: 'gyu' }, { kana: 'ギョ', romaji: 'gyo' },
+                { kana: 'ジャ', romaji: 'ja' }, { kana: 'ジュ', romaji: 'ju' }, { kana: 'ジョ', romaji: 'jo' },
+                { kana: 'ヂャ', romaji: 'ja' }, { kana: 'ヂュ', romaji: 'ju' }, { kana: 'ヂョ', romaji: 'jo' },
+                { kana: 'ビャ', romaji: 'bya' }, { kana: 'ビュ', romaji: 'byu' }, { kana: 'ビョ', romaji: 'byo' },
+                { kana: 'ピャ', romaji: 'pya' }, { kana: 'ピュ', romaji: 'pyu' }, { kana: 'ピョ', romaji: 'pyo' }
+            ]
+        }
+    };
+    
+    kanaData.hiragana.youon.find(k => k.kana === 'ぴょ').romaji = 'pyo';
+    kanaData.katakana.youon.find(k => k.kana === 'リョ').romaji = 'ryo';
+
+    const setupSection = document.getElementById('setupSection');
+    const testOverlay = document.getElementById('testOverlay');
+    const resultsSection = document.getElementById('resultsSection');
+    const startTestButton = document.getElementById('startTestButton');
+    const prevButton = document.getElementById('prevButton');
+    const nextButton = document.getElementById('nextButton');
+    const endTestButton = document.getElementById('endTestButton');
+    const finishButton = document.getElementById('finishButton');
+    const currentKanaDisplay = document.getElementById('currentKana');
+    const answerInput = document.getElementById('answerInput');
+    const totalQuestionsSpan = document.getElementById('totalQuestions');
+    const correctAnswersSpan = document.getElementById('correctAnswers');
+    const wrongAnswersSpan = document.getElementById('wrongAnswers');
+    const wrongQuestionsList = document.getElementById('wrongQuestionsList');
+    const kanaTypeCheckboxes = document.querySelectorAll('input[name="kanaType"]');
+    const soundTypeCheckboxes = document.querySelectorAll('input[name="soundType"]');
+    const testQuantityRange = document.getElementById('testQuantityRange');
+    const testQuantityValueSpan = document.getElementById('testQuantityValue');
+    const wrongBookSection = document.getElementById('wrongBookSection');
+    const wrongBookList = document.getElementById('wrongBookList');
+    const noWrongQuestionsMessage = document.getElementById('noWrongQuestionsMessage');
+    const clearWrongBookButton = document.getElementById('clearWrongBookButton');
+
+    let testQuestions = [];
+    let currentQuestionIndex = 0;
+    let correctCount = 0;
+    let sessionWrongQuestions = [];
+    let maxAvailableQuestions = 0;
+    let allWrongQuestions = [];
+
+    function getWrongQuestionsFromStorage() {
+        const storageData = localStorage.getItem('wrong_kana_questions');
+        if (storageData) {
+            try {
+                return JSON.parse(storageData);
+            } catch (e) {
+                console.error("Error parsing wrong questions from localStorage:", e);
+                return [];
+            }
+        }
+        return [];
+    }
+
+    function saveWrongQuestionsToStorage(questions) {
+        try {
+            const simplifiedQuestions = questions.map(q => ({
+                kana: q.kana,
+                romaji: q.correctAnswer || q.romaji,
+                errorCount: q.errorCount || 1
+            }));
+            const jsonString = JSON.stringify(simplifiedQuestions);
+            localStorage.setItem('wrong_kana_questions', jsonString);
+        } catch (e) {
+            console.error("Error saving wrong questions to localStorage:", e);
+            showModal('无法保存错题本。存储空间可能已满或浏览器处于隐私模式。');
+        }
+    }
+
+    function saveSettingsToStorage() {
+        const settings = {
+            kanaTypes: Array.from(kanaTypeCheckboxes).filter(cb => cb.checked).map(cb => cb.value),
+            soundTypes: Array.from(soundTypeCheckboxes).filter(cb => cb.checked).map(cb => cb.value),
+            quantity: parseInt(testQuantityRange.value)
+        };
+        try {
+            localStorage.setItem('kana_test_settings', JSON.stringify(settings));
+        } catch (e) {
+            console.error("Error saving settings to localStorage:", e);
+        }
+    }
+
+    function loadSettingsFromStorage() {
+        const storageData = localStorage.getItem('kana_test_settings');
+        if (storageData) {
+            try {
+                const settings = JSON.parse(storageData);
+                kanaTypeCheckboxes.forEach(cb => { cb.checked = settings.kanaTypes?.includes(cb.value); });
+                soundTypeCheckboxes.forEach(cb => { cb.checked = settings.soundTypes?.includes(cb.value); });
+                if (settings.quantity) { testQuantityRange.value = settings.quantity; }
+                updateTestQuantitySlider();
+            } catch (e) {
+                console.error("Error loading settings from localStorage:", e);
+                resetSettingsToDefault();
+            }
+        } else {
+            resetSettingsToDefault();
+        }
+    }
+    
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    function calculateMaxAvailableQuestions() {
+        const selectedKanaTypes = Array.from(kanaTypeCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
+        const selectedSoundTypes = Array.from(soundTypeCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
+        let totalCount = 0;
+        if (selectedKanaTypes.length === 0 || selectedSoundTypes.length === 0) return 0;
+        selectedKanaTypes.forEach(kanaType => {
+            selectedSoundTypes.forEach(soundType => {
+                if (kanaData[kanaType]?.[soundType]) {
+                    totalCount += kanaData[kanaType][soundType].length;
+                }
+            });
+        });
+        return totalCount;
+    }
+
+    function updateTestQuantitySlider() {
+        maxAvailableQuestions = calculateMaxAvailableQuestions();
+        testQuantityRange.min = 1;
+        if (maxAvailableQuestions === 0) {
+            testQuantityRange.max = 1;
+            testQuantityRange.value = 1;
+            testQuantityValueSpan.textContent = '0';
+            startTestButton.disabled = true;
+            return;
+        }
+        testQuantityRange.max = maxAvailableQuestions;
+        startTestButton.disabled = false;
+        let currentValue = parseInt(testQuantityRange.value);
+        if (currentValue > maxAvailableQuestions) {
+            testQuantityRange.value = maxAvailableQuestions;
+            currentValue = maxAvailableQuestions;
+        }
+        testQuantityValueSpan.textContent = (currentValue === maxAvailableQuestions) ? `全部(${maxAvailableQuestions})` : currentValue;
+    }
+
+    testQuantityRange.addEventListener('input', () => {
+        updateTestQuantitySlider();
+        if (getCookie('cookie_consent') === 'agreed') saveSettingsToStorage();
+    });
+
+    [...kanaTypeCheckboxes, ...soundTypeCheckboxes].forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+            updateTestQuantitySlider();
+            if (getCookie('cookie_consent') === 'agreed') saveSettingsToStorage();
+        });
+    });
+
+    startTestButton.addEventListener('click', () => {
+        const selectedKanaTypes = Array.from(kanaTypeCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
+        const selectedSoundTypes = Array.from(soundTypeCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
+        if (selectedKanaTypes.length === 0 || selectedSoundTypes.length === 0) {
+            showModal('请至少选择一种假名类型和音节类型。');
+            return;
+        }
+        let availableKana = [];
+        selectedKanaTypes.forEach(kanaType => {
+            selectedSoundTypes.forEach(soundType => {
+                if (kanaData[kanaType]?.[soundType]) {
+                    availableKana.push(...kanaData[kanaType][soundType]);
+                }
+            });
+        });
+        if (availableKana.length === 0) {
+            showModal('所选条件下没有可用的假名。');
+            return;
+        }
+        shuffleArray(availableKana);
+        let testQuantity = parseInt(testQuantityRange.value);
+        testQuestions = availableKana.slice(0, testQuantity);
+        testQuestions.forEach(q => q.userAnswer = '');
+        currentQuestionIndex = 0;
+        correctCount = 0;
+        sessionWrongQuestions = [];
+        setupSection.style.display = 'none';
+        wrongBookSection.style.display = 'none';
+        testOverlay.style.display = 'flex';
+        displayNextQuestion();
+        if (getCookie('cookie_consent') === 'agreed') saveSettingsToStorage();
+    });
+
+    function displayNextQuestion() {
+        if (currentQuestionIndex < testQuestions.length) {
+            const currentQuestion = testQuestions[currentQuestionIndex];
+            currentKanaDisplay.textContent = currentQuestion.kana;
+            answerInput.value = currentQuestion.userAnswer;
+            answerInput.focus();
+            prevButton.disabled = (currentQuestionIndex === 0);
+        }
+    }
+
+    function checkAnswer() {
+        const currentKanaItem = testQuestions[currentQuestionIndex];
+        currentKanaItem.userAnswer = answerInput.value.trim().toLowerCase();
+    }
+    
+    function navigate(direction) {
+        checkAnswer();
+        currentQuestionIndex += direction;
+        if (currentQuestionIndex >= 0 && currentQuestionIndex < testQuestions.length) {
+            displayNextQuestion();
+        } else if (currentQuestionIndex >= testQuestions.length) {
+            endTest();
+        } else {
+             currentQuestionIndex = 0;
+        }
+    }
+
+    prevButton.addEventListener('click', () => navigate(-1));
+    nextButton.addEventListener('click', () => navigate(1));
+    endTestButton.addEventListener('click', () => {
+        checkAnswer();
+        endTest();
+    });
+    answerInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            nextButton.click();
+        }
+    });
+
+    function endTest() {
+        testOverlay.style.display = 'none';
+        resultsSection.style.display = 'block';
+        correctCount = 0;
+        sessionWrongQuestions = [];
+        testQuestions.forEach(q => {
+            const userAnswer = q.userAnswer;
+            let isCorrect = (userAnswer === q.romaji.toLowerCase()) ||
+                            ((q.kana === 'を' || q.kana === 'ヲ') && (userAnswer === 'o' || userAnswer === 'wo')) ||
+                            ((q.kana === 'ぢ' || q.kana === 'ヂ') && (userAnswer === 'ji' || userAnswer === 'di')) ||
+                            ((q.kana === 'づ' || q.kana === 'ヅ') && (userAnswer === 'zu' || userAnswer === 'du'));
+
+            if (isCorrect) {
+                correctCount++;
+            } else {
+                sessionWrongQuestions.push({
+                    kana: q.kana,
+                    userAnswer: userAnswer || '未回答',
+                    correctAnswer: q.romaji,
+                });
+            }
+        });
+        if (getCookie('cookie_consent') === 'agreed') {
+            updateWrongBookData(sessionWrongQuestions);
+        }
+        totalQuestionsSpan.textContent = testQuestions.length;
+        correctAnswersSpan.textContent = correctCount;
+        wrongAnswersSpan.textContent = sessionWrongQuestions.length;
+        wrongQuestionsList.innerHTML = sessionWrongQuestions.length === 0 
+            ? '<li>恭喜你，全部答对！</li>'
+            : sessionWrongQuestions.map(q => {
+                if (q.userAnswer === '未回答') {
+                    return `<li><strong>${q.kana}</strong>: <span class="wrong-answer-text">你没有回答</span> &rarr; 正确答案 <span class="correct-answer-text">${q.correctAnswer}</span></li>`;
+                } else {
+                    return `<li><strong>${q.kana}</strong>: 你的回答 "<span class="wrong-answer-text">${q.userAnswer}</span>" &rarr; 正确答案 <span class="correct-answer-text">${q.correctAnswer}</span></li>`;
+                }
+            }).join('');
+    }
+
+    finishButton.addEventListener('click', () => {
+        setupSection.style.display = 'block';
+        wrongBookSection.style.display = 'block';
+        resultsSection.style.display = 'none';
+        answerInput.value = '';
+        if (getCookie('cookie_consent') === 'agreed') {
+            loadSettingsFromStorage();
+        } else {
+            resetSettingsToDefault();
+        }
+        window.scroll({ top: 0, behavior: 'smooth' });
+    });
+    
+    function resetSettingsToDefault() {
+        kanaTypeCheckboxes.forEach(cb => cb.checked = (cb.value === 'hiragana'));
+        soundTypeCheckboxes.forEach(cb => cb.checked = (cb.value === 'seion'));
+        testQuantityRange.value = 10;
+        updateTestQuantitySlider();
+    }
+
+    function displayWrongBook() {
+        if (allWrongQuestions.length === 0) {
+            noWrongQuestionsMessage.style.display = 'block';
+            wrongBookList.style.display = 'none';
+            clearWrongBookButton.style.display = 'none';
+        } else {
+            noWrongQuestionsMessage.style.display = 'none';
+            wrongBookList.style.display = 'block';
+            clearWrongBookButton.style.display = 'inline-block';
+            allWrongQuestions.sort((a, b) => (b.errorCount - a.errorCount));
+            wrongBookList.innerHTML = allWrongQuestions.map(q => `<li><span class="wrong-kana-count">错误次数: ${q.errorCount}次</span> <strong>${q.kana}</strong> &rarr; ${q.romaji}</li>`).join('');
+        }
+    }
+
+    function updateWrongBookData(newWrongQuestions) {
+        newWrongQuestions.forEach(newQ => {
+            const existing = allWrongQuestions.find(q => q.kana === newQ.kana);
+            if (existing) {
+                existing.errorCount++;
+            } else {
+                allWrongQuestions.push({
+                    kana: newQ.kana,
+                    romaji: newQ.correctAnswer,
+                    errorCount: 1
+                });
+            }
+        });
+        saveWrongQuestionsToStorage(allWrongQuestions);
+        displayWrongBook();
+    }
+
+    clearWrongBookButton.addEventListener('click', () => {
+        showConfirm('你确定要清空错题本吗？此操作不可撤销。', () => {
+            allWrongQuestions = [];
+            localStorage.removeItem('wrong_kana_questions');
+            displayWrongBook();
+        });
+    });
+
+    function showModal(message) {
+        let modal = document.getElementById('customAlertModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'customAlertModal';
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `<div class="modal-content"><p>${message}</p><button class="tool-button">确定</button></div>`;
+            modal.querySelector('button').onclick = () => modal.style.display = 'none';
+            document.body.appendChild(modal);
+        }
+        modal.querySelector('p').textContent = message;
+        modal.style.display = 'flex';
+    }
+
+    function showConfirm(message, onConfirm) {
+        let modal = document.getElementById('customConfirmModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'customConfirmModal';
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <p></p>
+                    <div class="confirm-modal-buttons">
+                        <button id="confirmOk" class="tool-button confirm-ok">确定</button>
+                        <button id="confirmCancel" class="tool-button confirm-cancel">取消</button>
+                    </div>
+                </div>`;
+            document.body.appendChild(modal);
+            
+            const hide = () => modal.classList.remove('visible');
+
+            modal.querySelector('#confirmCancel').onclick = hide;
+            modal.querySelector('#confirmOk').onclick = () => {
+                hide();
+                onConfirm();
+            };
+        }
+        modal.querySelector('p').textContent = message;
+        modal.classList.add('visible');
+    }
+
+    function initializeApp() {
+        if (getCookie('cookie_consent') === 'agreed') {
+            allWrongQuestions = getWrongQuestionsFromStorage();
+            displayWrongBook();
+            loadSettingsFromStorage();
+        } else {
+            wrongBookSection.innerHTML = '<p style="text-align: center;">请同意cookie以启用此功能</p>';
+            resetSettingsToDefault();
+        }
+    }
+
+    document.addEventListener('cookieConsent', (event) => {
+        if (event.detail.consent === 'agreed') {
+            initializeApp();
+        }
+    });
+
+    initializeApp();
+});
+</script>
+
+</body>
+</html>

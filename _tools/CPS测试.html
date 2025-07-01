@@ -1,43 +1,46 @@
 ---
 layout: tool
-title: CPStest
-permalink: /tool/CPStest/
+title: CPS测试
+permalink: /tool/CPS测试/
 ---
-<h2 style="text-align: center; margin-bottom: 20px;">CPS TEST</h2>
+<h2 style="text-align: center; margin-bottom: 20px;">点击速度测试 (CPS)</h2>
 
 <div class="cps-container">
-    <div id="instructionDisplay" class="info-message">Click Start, and the test will automatically stop after 10 seconds.</div>
+    <div id="instructionDisplay" class="info-message">点击开始，测试将在 10 秒后自动停止</div>
     <div id="clickArea" class="click-area">
-        <span id="clicksDisplay">Number of clicks: 0</span>
-        <span id="timerDisplay">remaining time: 10.00 seconds</span>
+        <span id="clicksDisplay">点击次数: 0</span>
+        <span id="timerDisplay">剩余时间: 10.00 秒</span>
     </div>
     <div id="resultDisplay" class="result-message"></div>
-    <button id="resetButton" class="tool-button reset-button">start over</button>
+    <button id="resetButton" class="tool-button reset-button">重新开始</button>
 
+    <!-- 历史记录区块 -->
     <div id="historyContainer" class="history-container">
         <div class="history-header">
-            <h3>Past performance</h3>
-            <button id="clearHistoryBtn" class="tool-button clear-button" style="display: none;">Clear data</button>
+            <h3>历史成绩</h3>
+            <button id="clearHistoryBtn" class="tool-button clear-button" style="display: none;">清除数据</button>
         </div>
         <div id="historyContent">
             <ul id="historyList"></ul>
-            <p id="historyPlaceholder">Loading records...</p>
+            <p id="historyPlaceholder">正在加载记录...</p>
         </div>
     </div>
 </div>
 
+<!-- 清除确认弹窗 -->
 <div id="confirmClearModal" class="modal-overlay">
     <div class="modal-content">
-        <p>Are you sure you want to clear your browsing history? This action cannot be undone.</p>
+        <p>你确定要清空历史记录吗？此操作不可撤销。</p>
         <div class="modal-buttons">
-            <button id="confirmClear" class="tool-button confirm-ok">confirm</button>
-            <button id="cancelClear" class="tool-button confirm-cancel">cancel</button>
+            <button id="confirmClear" class="tool-button confirm-ok">确定</button>
+            <button id="cancelClear" class="tool-button confirm-cancel">取消</button>
         </div>
     </div>
 </div>
 
 
 <style>
+    /* 引用 _variables.scss 中的颜色变量 */
     :root {
         --red: #fa5252;
         --gray-600: #868e96;
@@ -46,6 +49,7 @@ permalink: /tool/CPStest/
         --border-color: #dee2e6;
     }
 
+    /* 页面容器 */
     .cps-container {
         display: flex;
         flex-direction: column;
@@ -115,7 +119,7 @@ permalink: /tool/CPStest/
         font-weight: bold;
         color: var(--blue);
         margin-top: 20px;
-        min-height: 1.5em;
+        min-height: 1.5em; /* 避免内容出现时跳动 */
     }
 
     .tool-button {
@@ -130,6 +134,7 @@ permalink: /tool/CPStest/
         transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
     }
 
+    /* 按钮响应式设计 */
     .tool-button:hover {
         background-color: var(--tool-button-hover-bg);
         transform: translateY(-2px);
@@ -143,6 +148,7 @@ permalink: /tool/CPStest/
         transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
     }
 
+    /* 历史记录区块样式 */
     .history-container {
         width: 90%;
         margin-top: 30px;
@@ -207,6 +213,7 @@ permalink: /tool/CPStest/
         padding: 20px 0;
     }
 
+    /* 弹窗样式 */
     .modal-overlay {
         position: fixed;
         top: 0;
@@ -214,7 +221,7 @@ permalink: /tool/CPStest/
         width: 100%;
         height: 100%;
         background: rgba(0, 0, 0, 0.5);
-        display: none;
+        display: none; /* 默认隐藏 */
         justify-content: center;
         align-items: center;
         z-index: 1000;
@@ -250,7 +257,7 @@ permalink: /tool/CPStest/
     }
 
     .confirm-ok:hover {
-        background-color: #d94848 !important;
+        background-color: #d94848 !important; /* 更深的红色 */
     }
     
     .confirm-cancel {
@@ -261,6 +268,7 @@ permalink: /tool/CPStest/
         background-color: var(--gray-700) !important;
     }
 
+    /* 响应式设计 */
     @media (max-width: 768px) {
         .cps-container {
             width: 95%;
@@ -289,6 +297,7 @@ permalink: /tool/CPStest/
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    // DOM 元素获取
     const clickArea = document.getElementById('clickArea');
     const clicksDisplay = document.getElementById('clicksDisplay');
     const timerDisplay = document.getElementById('timerDisplay');
@@ -303,12 +312,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmClearBtn = document.getElementById('confirmClear');
     const cancelClearBtn = document.getElementById('cancelClear');
 
+    // 变量定义
     let clickCount = 0;
     let startTime = 0;
     let testActive = false;
     let timerInterval;
-    const testDuration = 10000;
+    const testDuration = 10000; // 10秒
 
+    // --- Cookie 操作函数 ---
     function setCookie(name, value, days) {
         let expires = "";
         if (days) {
@@ -330,9 +341,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return null;
     }
 
+    // --- 历史记录操作 ---
     function loadHistory() {
         if (getCookie('cookie_consent') !== 'agreed') {
-            historyPlaceholder.textContent = 'Agree to cookies to enable this feature';
+            historyPlaceholder.textContent = '请同意cookie以启用此功能';
             clearHistoryBtn.style.display = 'none';
             historyList.style.display = 'none';
             historyPlaceholder.style.display = 'block';
@@ -349,7 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     showNoRecordsMessage();
                 }
             } catch (e) {
-                console.error("Failed to parse history:", e);
+                console.error("解析历史记录失败:", e);
                 showNoRecordsMessage();
             }
         } else {
@@ -367,17 +379,18 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 history = JSON.parse(historyData);
             } catch(e) {
-                console.error("Failed to parse existing history records:", e);
+                console.error("解析已有历史记录失败:", e);
                 history = [];
             }
         }
         
         const newRecord = {
             cps: cps,
-            date: new Date().toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+            date: new Date().toLocaleString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
         };
-        history.unshift(newRecord);
-
+        history.unshift(newRecord); // 新纪录放在最前面
+        
+        // 可选：限制历史记录数量
         if (history.length > 50) {
             history.pop();
         }
@@ -402,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function showNoRecordsMessage() {
-        historyPlaceholder.textContent = 'No records found at this time.';
+        historyPlaceholder.textContent = '目前无记录';
         historyList.innerHTML = '';
         historyList.style.display = 'none';
         historyPlaceholder.style.display = 'block';
@@ -410,18 +423,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function clearHistory() {
-        setCookie('cps_history', '', -1);
+        setCookie('cps_history', '', -1); // 删除cookie
         showNoRecordsMessage();
         confirmClearModal.style.display = 'none';
     }
 
+
+    // --- 测试核心逻辑 ---
     function handleClick() {
         if (!testActive) {
             startTest();
         }
         clickCount++;
-        clicksDisplay.textContent = `Number of clicks: ${clickCount}`;
-
+        clicksDisplay.textContent = `点击次数: ${clickCount}`;
+        
+        // 添加点击视觉效果
         clickArea.classList.add('click-highlight');
         setTimeout(() => {
             clickArea.classList.remove('click-highlight');
@@ -431,19 +447,19 @@ document.addEventListener('DOMContentLoaded', () => {
     function startTest() {
         testActive = true;
         startTime = Date.now();
-        instructionDisplay.textContent = 'Testing in progress...';
+        instructionDisplay.textContent = '测试进行中...';
         clickArea.classList.add('test-active');
         clickArea.classList.remove('disabled');
 
         timerInterval = setInterval(() => {
             const elapsedTime = Date.now() - startTime;
             const remainingTime = Math.max(0, testDuration - elapsedTime);
-            timerDisplay.textContent = `remaining time: ${(remainingTime / 1000).toFixed(2)} seconds`;
+            timerDisplay.textContent = `剩余时间: ${(remainingTime / 1000).toFixed(2)} 秒`;
 
             if (remainingTime <= 0) {
                 endTest();
             }
-        }, 50);
+        }, 50); // 每50ms更新一次，更平滑
     }
 
     function endTest() {
@@ -453,13 +469,13 @@ document.addEventListener('DOMContentLoaded', () => {
         
         clickArea.classList.remove('test-active');
         clickArea.classList.add('disabled');
-        instructionDisplay.textContent = 'Test complete!';
+        instructionDisplay.textContent = '测试完成！';
 
         const durationSeconds = testDuration / 1000;
         const cps = (clickCount / durationSeconds).toFixed(1);
-        resultDisplay.textContent = `Your CPS: ${cps}`;
+        resultDisplay.textContent = `您的 CPS: ${cps}`;
 
-        saveHistory(cps);
+        saveHistory(cps); // 保存成绩
     }
 
     function resetTest() {
@@ -468,17 +484,18 @@ document.addEventListener('DOMContentLoaded', () => {
         testActive = false;
         clearInterval(timerInterval);
 
-        clicksDisplay.textContent = `Number of clicks: 0`;
-        timerDisplay.textContent = `remaining time: ${(testDuration / 1000).toFixed(2)} seconds`;
+        clicksDisplay.textContent = `点击次数: 0`;
+        timerDisplay.textContent = `剩余时间: ${(testDuration / 1000).toFixed(2)} 秒`;
         resultDisplay.textContent = '';
-        instructionDisplay.textContent = `Click Start, and the test will automatically stop after  ${(testDuration / 1000).toFixed(0)} second`;
+        instructionDisplay.textContent = `点击开始，测试将在 ${(testDuration / 1000).toFixed(0)} 秒后自动停止`;
         
         clickArea.classList.remove('disabled');
         clickArea.classList.remove('test-active');
-        clickArea.removeEventListener('mousedown', handleClick);
-        clickArea.addEventListener('mousedown', handleClick);
+        clickArea.removeEventListener('mousedown', handleClick); // 确保移除旧的监听器
+        clickArea.addEventListener('mousedown', handleClick);   // 添加新的监听器
     }
 
+    // --- 事件监听 ---
     resetButton.addEventListener('click', resetTest);
     
     clearHistoryBtn.addEventListener('click', () => {
@@ -491,12 +508,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     confirmClearBtn.addEventListener('click', clearHistory);
 
+    // 监听cookie同意事件，如果用户同意了，则重新加载历史记录
     document.addEventListener('cookieConsent', (event) => {
         if (event.detail.consent === 'agreed') {
             loadHistory();
         }
     });
 
+    // --- 初始化 ---
     function initializeApp() {
         resetTest();
         loadHistory();

@@ -1,0 +1,644 @@
+---
+layout: tool
+title: 调色工具
+permalink: /tool/调色工具/
+---
+
+<head>
+
+<style>
+    /* 页面整体容器样式 */
+    .color-tool-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* 居中显示 */
+        padding: 20px;
+        width: 95%; /* 页面宽度 */
+        box-sizing: border-box;
+        margin: 0 auto; /* 居中 */
+    }
+
+    /* 顶部布局区 (调色盘、控制区、预览区) */
+    .top-section {
+        display: grid;
+        /* 定义三列布局：左空白、调色盘、中空白、控制区、右空白、预览区 */
+        grid-template-columns: 7.5% 30% 7.5% 25% 5% 20%;
+        grid-template-areas:
+            ". palette . controls . preview"; /* 定义区域名称 */
+        gap: 0;
+        width: 100%;
+        margin-bottom: 25px;
+        align-items: start; /* 顶部对齐 */
+        max-width: 1200px;
+    }
+
+    /* 调色盘区域样式 */
+    .color-picker-area {
+        grid-area: palette; /* 放置在 palette 区域 */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        max-width: 405px;
+        width: 100%;
+        margin: 0;
+    }
+
+    /* 调色盘 Canvas 样式 */
+    #color-palette {
+        width: 100%;
+        aspect-ratio: 4 / 3; /* 保持 4:3 比例 */
+        border: 1px solid #ccc;
+        cursor: crosshair;
+        position: relative;
+    }
+
+    /* RGB文本显示样式 */
+    .rgb-display-text {
+        margin-top: 8px;
+        font-size: 1.05em;
+        font-weight: bold;
+    }
+
+    /* 中间控制区容器 (RGB、亮度、十六进制) */
+    .middle-controls-column {
+        grid-area: controls; /* 放置在 controls 区域 */
+        display: flex;
+        flex-direction: column;
+        gap: 12px; /* 各控制组间距 */
+        min-width: 220px;
+        width: 100%;
+    }
+
+    /* RGB 滑块和数值显示组 */
+    .rgb-controls-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+    }
+
+    /* 单个 RGB 控制行 */
+    .rgb-control {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    /* RGB 标签样式 */
+    .rgb-control label {
+        font-weight: bold;
+        width: 16px;
+        font-size: 0.9em;
+    }
+
+    /* RGB 滑块轨道样式 */
+    .rgb-control input[type="range"] {
+        flex-grow: 1;
+        -webkit-appearance: none;
+        height: 6px;
+        border-radius: 3px;
+        outline: none;
+    }
+
+    /* RGB 滑块按钮样式 */
+    .rgb-control input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #4CAF50; /* 默认颜色，将被JS覆盖 */
+        cursor: pointer;
+        box-shadow: 0 0 2px rgba(0,0,0,0.3);
+    }
+
+    /* 不同 RGB 通道滑块的背景和按钮颜色 */
+    #red-slider { background: linear-gradient(to right, black, red); }
+    #red-slider::-webkit-slider-thumb { background: red; }
+    #green-slider { background: linear-gradient(to right, black, green); }
+    #green-slider::-webkit-slider-thumb { background: green; }
+    #blue-slider { background: linear-gradient(to right, black, blue); }
+    #blue-slider::-webkit-slider-thumb { background: blue; }
+
+    /* RGB 数值输入框样式 */
+    .rgb-control input[type="number"] {
+        width: 50px;
+        padding: 3px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        text-align: center;
+        font-size: 0.85em;
+    }
+
+    /* 亮度条区域 */
+    .brightness-control-group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+    }
+
+    /* 亮度滑块样式 */
+    #brightness-slider {
+        width: 100%;
+        height: 6px;
+        -webkit-appearance: none;
+        background: linear-gradient(to right, black 0%, rgb(128,128,128) 50%, white 100%);
+        border-radius: 1px;
+        outline: none;
+        cursor: grab;
+    }
+
+    /* 亮度滑块按钮样式 */
+    #brightness-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: black; /* 固定为黑色 */
+        cursor: grab;
+        box-shadow: 0 0 1px rgba(0,0,0,0.3);
+    }
+    #brightness-slider:active::-webkit-slider-thumb {
+        cursor: grabbing;
+    }
+
+    /* 十六进制显示区域 */
+    .hex-display-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 8px;
+    }
+
+    /* 十六进制输入框样式 */
+    .hex-input-field {
+        width: 120px; /* 调整宽度以容纳 #RRGGBB 7个字符 */
+        padding: 5px 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 1.1em;
+        font-weight: bold;
+        text-align: center;
+        /* text-transform: uppercase;  这个CSS属性我们将在JS中处理，以更好地控制格式化 */
+        box-sizing: border-box;
+    }
+
+    /* 媒体查询 - 响应式调整（平板和中小屏幕） */
+    @media (max-width: 768px) {
+        .hex-input-field {
+            width: 95px; /* 相应调整 */
+            font-size: 1.05em;
+            padding: 4px 7px;
+        }
+    }
+
+    /* 媒体查询 - 响应式调整（手机和极小屏幕） */
+    @media (max-width: 480px) {
+        .hex-input-field {
+            width: 85px; /* 相应调整 */
+            font-size: 0.95em;
+            padding: 3px 6px;
+        }
+    }
+
+    /* 右侧预览区容器 */
+    .right-preview-column {
+        grid-area: preview; /* 放置在 preview 区域 */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px; /* 预览元素间距 */
+        min-width: 100px;
+        width: 100%;
+    }
+
+    /* 颜色预览方块 */
+    #color-preview {
+        width: 70px;
+        height: 70px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    /* 文字颜色预览样式 */
+    .text-color-preview {
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 5px;
+        font-size: 1.1em;
+        font-weight: bold;
+        text-align: center;
+        width: 100%;
+        box-sizing: border-box;
+        line-height: 1.4;
+    }
+
+    /* 标题字体大小调整 */
+    h2 {
+        font-size: 1.8em;
+    }
+    h3 {
+        font-size: 1.2em;
+        margin-bottom: 7px;
+    }
+</style>
+
+</head>
+
+<body>
+
+<div class="color-tool-container">
+    <h2>调色工具</h2>
+
+    <div class="top-section">
+        <div class="color-picker-area">
+            <h3>调色盘</h3>
+            <canvas id="color-palette"></canvas>
+            <div class="rgb-display-text">当前颜色: <span id="current-rgb-display">RGB(0, 0, 0)</span></div> 
+        </div>
+
+        <div class="middle-controls-column">
+            <div class="rgb-controls-group">
+                <h3>RGB 调整</h3>
+                <div class="rgb-control">
+                    <label for="red-slider">R:</label>
+                    <input type="range" id="red-slider" min="0" max="255" value="0">
+                    <input type="number" id="red-number" min="0" max="255" value="0">
+                </div>
+                <div class="rgb-control">
+                    <label for="green-slider">G:</label>
+                    <input type="range" id="green-slider" min="0" max="255" value="0">
+                    <input type="number" id="green-number" min="0" max="255" value="0">
+                </div>
+                <div class="rgb-control">
+                    <label for="blue-slider">B:</label>
+                    <input type="range" id="blue-slider" min="0" max="255" value="0">
+                    <input type="number" id="blue-number" min="0" max="255" value="0">
+                </div>
+            </div>
+
+            <div class="brightness-control-group">
+                <h3>亮度调整</h3>
+                <input type="range" id="brightness-slider" min="0" max="100" value="0">
+            </div>
+
+            <div class="hex-display-container">
+                <h3>十六进制</h3>
+                <input type="text" id="hex-input" class="hex-input-field" value="#000000">
+            </div>
+        </div>
+
+        <div class="right-preview-column">
+            <h3>预览块</h3>
+            <div id="color-preview"></div>
+            <div class="text-color-preview">这是 <span id="dynamic-text-color">文本颜色</span> 预览</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // =================================================================
+    // 步骤 1: Cookie 辅助函数
+    // =================================================================
+
+    /**
+     * 读取指定名称的 Cookie 值
+     * @param {string} name - Cookie 的名称
+     * @returns {string|null} - 返回 Cookie 的值，如果找不到则返回 null
+     */
+    function getCookie(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for(let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
+    }
+
+    /**
+     * 设置一个 Cookie
+     * @param {string} name - Cookie 的名称
+     * @param {string} value - Cookie 的值
+     * @param {number} days - Cookie 的有效天数
+     */
+    function setCookie(name, value, days) {
+        let expires = "";
+        if (days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+    }
+
+
+    // =================================================================
+    // 原有代码：获取DOM元素和变量定义
+    // =================================================================
+
+    const colorPalette = document.getElementById('color-palette');
+    const ctx = colorPalette.getContext('2d');
+
+    const redSlider = document.getElementById('red-slider');
+    const greenSlider = document.getElementById('green-slider');
+    const blueSlider = document.getElementById('blue-slider');
+    const redNumber = document.getElementById('red-number');
+    const greenNumber = document.getElementById('green-number');
+    const blueNumber = document.getElementById('blue-number');
+
+    const brightnessSlider = document.getElementById('brightness-slider');
+    const hexInput = document.getElementById('hex-input');
+    const colorPreview = document.getElementById('color-preview');
+    const dynamicTextColorSpan = document.getElementById('dynamic-text-color');
+    const currentRgbDisplay = document.getElementById('current-rgb-display');
+
+    let originalColor = { r: 0, g: 0, b: 0 };
+    let isDrawingOnPalette = false;
+    let isBrightnessDragging = false;
+
+
+    // =================================================================
+    // 原有代码：颜色转换和计算函数
+    // =================================================================
+
+    function rgbToHex(r, g, b) {
+        return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+    }
+
+    function hexToRgb(hex) {
+        let r = 0, g = 0, b = 0;
+        if (hex.startsWith('#')) {
+            hex = hex.slice(1);
+        }
+        if (hex.length === 3) {
+            r = parseInt(hex[0] + hex[0], 16);
+            g = parseInt(hex[1] + hex[1], 16);
+            b = parseInt(hex[2] + hex[2], 16);
+        } else if (hex.length === 6) {
+            r = parseInt(hex.substring(0, 2), 16);
+            g = parseInt(hex.substring(2, 4), 16);
+            b = parseInt(hex.substring(4, 6), 16);
+        } else {
+            return { r: 0, g: 0, b: 0 };
+        }
+        return { r, g, b };
+    }
+
+    function getOriginalColorBrightnessPercentage(color) {
+        const { r, g, b } = color;
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
+        if (max + (255 - min) === 0) return 0;
+        return (max / (max + (255 - min))) * 100;
+    }
+
+    function getColorFromBrightnessGradient(x_position_percent, base_color) {
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+        const gradientWidth = 256;
+        tempCanvas.width = gradientWidth;
+        tempCanvas.height = 1;
+
+        const baseColorRgbString = `rgb(${base_color.r}, ${base_color.g}, ${base_color.b})`;
+        const gradient = tempCtx.createLinearGradient(0, 0, gradientWidth, 0);
+        const baseColorValuePercentageForGradient = getOriginalColorBrightnessPercentage(base_color);
+
+        gradient.addColorStop(0, 'black');
+        gradient.addColorStop(baseColorValuePercentageForGradient / 100, baseColorRgbString);
+        gradient.addColorStop(1, 'white');
+        
+        tempCtx.fillStyle = gradient;
+        tempCtx.fillRect(0, 0, gradientWidth, 1);
+
+        const pixelX = Math.round((x_position_percent / 100) * (gradientWidth - 1));
+        const clampedPixelX = Math.min(gradientWidth - 1, Math.max(0, pixelX)); 
+        const imageData = tempCtx.getImageData(clampedPixelX, 0, 1, 1).data;
+        
+        return { r: imageData[0], g: imageData[1], b: imageData[2] };
+    }
+
+
+    // =================================================================
+    // 步骤 2: 修改 updateColorDisplay 函数以保存颜色到 Cookie
+    // =================================================================
+    
+    function updateColorDisplay(r, g, b, source = 'rgbSlider') {
+        // 确保RGB值在有效范围内
+        r = Math.max(0, Math.min(255, r));
+        g = Math.max(0, Math.min(255, g));
+        b = Math.max(0, Math.min(255, b));
+
+        if (source !== 'brightness') {
+            originalColor = { r, g, b };
+        }
+
+        // 更新UI界面
+        redSlider.value = r;
+        greenSlider.value = g;
+        blueSlider.value = b;
+        redNumber.value = r;
+        greenNumber.value = g;
+        blueNumber.value = b;
+        
+        if (source !== 'hexInput') {
+             hexInput.value = rgbToHex(r, g, b);
+        }
+       
+        colorPreview.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+        currentRgbDisplay.textContent = `RGB(${r}, ${g}, ${b})`;
+        dynamicTextColorSpan.style.color = `rgb(${r}, ${g}, ${b})`;
+        dynamicTextColorSpan.textContent = "文本颜色";
+        brightnessSlider.value = getOriginalColorBrightnessPercentage({r,g,b}); 
+        
+        const originalColorRgbString = `rgb(${originalColor.r}, ${originalColor.g}, ${originalColor.b})`;
+        const originalValuePercentageForGradient = getOriginalColorBrightnessPercentage(originalColor);
+        brightnessSlider.style.background = `linear-gradient(to right, black 0%, ${originalColorRgbString} ${originalValuePercentageForGradient}%, white 100%)`;
+
+        // --- 新增的 Cookie 保存逻辑 ---
+        // 检查用户是否同意了 Cookie
+        if (getCookie('cookie_consent') === 'agreed') {
+            // 如果同意了，就将当前颜色保存到名为 'lastColor' 的 Cookie 中
+            // 我们使用 JSON 格式来存储 RGB 对象
+            const colorData = JSON.stringify({ r: r, g: g, b: b });
+            // 设置 Cookie 有效期为 365 天
+            setCookie('lastColor', colorData, 365);
+        }
+        // --- Cookie 保存逻辑结束 ---
+    }
+
+
+    // =================================================================
+    // 原有代码：绘图和交互处理函数
+    // =================================================================
+
+    function drawColorPalette() {
+        const width = colorPalette.offsetWidth;
+        const height = (width / 3) * 2;
+        colorPalette.width = width;
+        colorPalette.height = height;
+
+        ctx.clearRect(0, 0, width, height);
+
+        const gradientH = ctx.createLinearGradient(0, 0, width, 0);
+        gradientH.addColorStop(0, 'rgb(255,0,0)');
+        gradientH.addColorStop(0.166, 'rgb(255,255,0)');
+        gradientH.addColorStop(0.333, 'rgb(0,255,0)');
+        gradientH.addColorStop(0.5, 'rgb(0,255,255)');
+        gradientH.addColorStop(0.666, 'rgb(0,0,255)');
+        gradientH.addColorStop(0.833, 'rgb(255,0,255)');
+        gradientH.addColorStop(1, 'rgb(255,0,0)');
+        ctx.fillStyle = gradientH;
+        ctx.fillRect(0, 0, width, height);
+
+        const gradientV = ctx.createLinearGradient(0, 0, 0, height);
+        gradientV.addColorStop(0, 'rgba(255,255,255,1)');
+        gradientV.addColorStop(0.5, 'rgba(255,255,255,0)');
+        gradientV.addColorStop(0.5, 'rgba(0,0,0,0)');
+        gradientV.addColorStop(1, 'rgba(0,0,0,1)');
+        ctx.fillStyle = gradientV;
+        ctx.fillRect(0, 0, width, height);
+    }
+
+    function handlePaletteInteraction(e) {
+        const rect = colorPalette.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        if (x >= 0 && x < colorPalette.width && y >= 0 && y < colorPalette.height) {
+            const imageData = ctx.getImageData(x, y, 1, 1).data;
+            updateColorDisplay(imageData[0], imageData[1], imageData[2], 'palette');
+        }
+    }
+
+    function handleBrightnessSliderInteraction(e) {
+        const rect = brightnessSlider.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const percentage = (x / rect.width) * 100;
+        let r, g, b;
+
+        const isPureBlack = (originalColor.r === 0 && originalColor.g === 0 && originalColor.b === 0);
+        const isPureWhite = (originalColor.r === 255 && originalColor.g === 255 && originalColor.b === 255);
+
+        if (isPureBlack || isPureWhite) {
+            const grayValue = Math.round((percentage / 100) * 255);
+            r = g = b = grayValue;
+            originalColor = { r: grayValue, g: grayValue, b: grayValue }; 
+        } else {
+            const adjustedColor = getColorFromBrightnessGradient(percentage, originalColor);
+            r = adjustedColor.r;
+            g = adjustedColor.g;
+            b = adjustedColor.b;
+        }
+        updateColorDisplay(r, g, b, 'brightness');
+    }
+
+    // =================================================================
+    // 原有代码：事件监听器
+    // =================================================================
+    
+    colorPalette.addEventListener('mousedown', (e) => { isDrawingOnPalette = true; handlePaletteInteraction(e); });
+    colorPalette.addEventListener('mousemove', (e) => { if (isDrawingOnPalette) handlePaletteInteraction(e); });
+    colorPalette.addEventListener('mouseup', () => { isDrawingOnPalette = false; });
+    colorPalette.addEventListener('mouseleave', () => { isDrawingOnPalette = false; });
+
+    redSlider.addEventListener('input', () => updateColorDisplay(parseInt(redSlider.value), parseInt(greenSlider.value), parseInt(blueSlider.value), 'rgbSlider'));
+    greenSlider.addEventListener('input', () => updateColorDisplay(parseInt(redSlider.value), parseInt(greenSlider.value), parseInt(blueSlider.value), 'rgbSlider'));
+    blueSlider.addEventListener('input', () => updateColorDisplay(parseInt(redSlider.value), parseInt(greenSlider.value), parseInt(blueSlider.value), 'rgbSlider'));
+
+    redNumber.addEventListener('input', () => { let val = parseInt(redNumber.value); if (isNaN(val) || val < 0) val = 0; if (val > 255) val = 255; redNumber.value = val; updateColorDisplay(val, parseInt(greenNumber.value), parseInt(blueNumber.value), 'rgbNumber'); });
+    greenNumber.addEventListener('input', () => { let val = parseInt(greenNumber.value); if (isNaN(val) || val < 0) val = 0; if (val > 255) val = 255; greenNumber.value = val; updateColorDisplay(parseInt(redNumber.value), val, parseInt(blueNumber.value), 'rgbNumber'); });
+    blueNumber.addEventListener('input', () => { let val = parseInt(blueNumber.value); if (isNaN(val) || val < 0) val = 0; if (val > 255) val = 255; blueNumber.value = val; updateColorDisplay(parseInt(redNumber.value), parseInt(greenNumber.value), val, 'rgbNumber'); });
+    
+    brightnessSlider.addEventListener('mousedown', (e) => { isBrightnessDragging = true; handleBrightnessSliderInteraction(e); });
+    brightnessSlider.addEventListener('mousemove', (e) => { if (isBrightnessDragging) handleBrightnessSliderInteraction(e); });
+    brightnessSlider.addEventListener('mouseup', () => { isBrightnessDragging = false; });
+    brightnessSlider.addEventListener('mouseleave', () => { isBrightnessDragging = false; });
+    
+    // (此处省略了 hexInput 的事件监听器，因为它们与原始文件相同)
+    // ... 将你原始文件中的 hexInput 相关事件监听器代码粘贴在这里 ...
+    hexInput.addEventListener('input', () => {
+        let hex = hexInput.value;
+        let caretPos = hexInput.selectionStart;
+        let filteredHex = '';
+        let originalLength = hex.length;
+        for (let i = 0; i < originalLength; i++) {
+            const char = hex[i];
+            if (i === 0 && char === '#') {
+                filteredHex += char;
+            } else if (/[0-9a-fA-F]/.test(char)) {
+                filteredHex += char;
+            }
+        }
+        if (hex !== filteredHex) {
+            hexInput.value = filteredHex;
+            hexInput.setSelectionRange(caretPos - (originalLength - filteredHex.length), caretPos - (originalLength - filteredHex.length));
+        }
+        let cleanHexForColor = filteredHex.startsWith('#') ? filteredHex.slice(1) : filteredHex;
+        const isValidHexForColor = /^[0-9A-Fa-f]{3}$|^[0-9A-Fa-f]{6}$/.test(cleanHexForColor);
+        if (isValidHexForColor) {
+            const rgb = hexToRgb(cleanHexForColor);
+            updateColorDisplay(rgb.r, rgb.g, rgb.b, 'hexInput');
+        }
+    });
+    hexInput.addEventListener('blur', () => {
+        let hex = hexInput.value.trim();
+        let cleanHex = hex.startsWith('#') ? hex.slice(1) : hex;
+        const isValidHex = /^[0-9A-Fa-f]{3}$|^[0-9A-Fa-f]{6}$/.test(cleanHex);
+        if (isValidHex) {
+            hexInput.value = '#' + cleanHex.toUpperCase();
+            const rgb = hexToRgb(cleanHex);
+            updateColorDisplay(rgb.r, rgb.g, rgb.b, 'hexInput');
+        } else {
+            const currentR = parseInt(redNumber.value);
+            const currentG = parseInt(greenNumber.value);
+            const currentB = parseInt(blueNumber.value);
+            hexInput.value = rgbToHex(currentR, currentG, currentB);
+        }
+    });
+
+    // =================================================================
+    // 步骤 3: 修改 window.onload 函数以在页面加载时恢复颜色
+    // =================================================================
+
+    window.onload = () => {
+        drawColorPalette();
+
+        // --- 新增的 Cookie 加载逻辑 ---
+        // 检查用户是否同意了 Cookie
+        if (getCookie('cookie_consent') === 'agreed') {
+            const savedColorJSON = getCookie('lastColor');
+            // 如果存在已保存的颜色数据
+            if (savedColorJSON) {
+                try {
+                    const savedColor = JSON.parse(savedColorJSON);
+                    // 校验数据是否有效
+                    if (typeof savedColor.r === 'number' && typeof savedColor.g === 'number' && typeof savedColor.b === 'number') {
+                        console.log('成功加载上次保存的颜色:', savedColor);
+                        // 使用保存的颜色初始化页面
+                        updateColorDisplay(savedColor.r, savedColor.g, savedColor.b, 'cookieLoad');
+                        // 成功加载后，退出函数，避免执行下面的默认初始化
+                        return;
+                    }
+                } catch (e) {
+                    console.error('解析已保存的颜色Cookie时出错:', e);
+                    // 如果解析出错，则继续执行默认初始化
+                }
+            }
+        }
+        // --- Cookie 加载逻辑结束 ---
+
+        // 如果没有同意Cookie，或没有找到有效的颜色数据，则执行默认初始化
+        updateColorDisplay(0, 0, 0, 'initial'); // 初始显示为黑色
+    };
+
+    window.addEventListener('resize', () => {
+        drawColorPalette();
+        updateColorDisplay(parseInt(redNumber.value), parseInt(greenNumber.value), parseInt(blueNumber.value), 'resize');
+    });
+
+</script>

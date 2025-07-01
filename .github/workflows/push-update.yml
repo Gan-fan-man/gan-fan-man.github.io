@@ -1,18 +1,16 @@
-name: Release notes
+name: push-update
 
 on:
   push:
     branches:
       - master
-  schedule:
-    - cron: 0 19 * * *
 
 jobs:
   update_release_draft:
     runs-on: ubuntu-latest
     env:
       RUBY_VERSION: 3.3.6
-      JEKYLL_VERSION: 3.10.0
+      JEKYLL_VERSION: 4.4.1
     steps:
       - name: Update release draft
         id: update_release_draft
@@ -24,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       RUBY_VERSION: 3.3.6
-      JEKYLL_VERSION: 3.10.0
+      JEKYLL_VERSION: 4.4.1
     steps:
       - name: Checkout code
         uses: actions/checkout@v2

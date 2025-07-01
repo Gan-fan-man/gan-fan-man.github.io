@@ -1,0 +1,198 @@
+---
+layout: tool
+title: 进制转换
+permalink: /tool/进制转换/
+---
+
+<h2>进制转换器</h2>
+<div class="tool-content-block">
+    <div class="input-group">
+        <label for="inputValue">输入数值:</label>
+        <input type="text" id="inputValue" placeholder="请输入要转换的数字">
+    </div>
+
+    <div class="input-group">
+        <label for="inputBaseSelect">输入进制(2-64):</label>
+        <select id="inputBaseSelect"></select>
+    </div>
+
+    <div class="input-group">
+        <label for="outputBaseSelect">目标进制(2-64):</label>
+        <select id="outputBaseSelect"></select>
+    </div>
+
+    <div class="output-group">
+        <label for="outputValueDisplay">转换结果:</label>
+        <div id="outputValueDisplay" class="output-display"></div>
+    </div>
+</div>
+
+<style>
+
+    .tool-content-block {
+        color: var(--body-color);
+    }
+
+    .input-group {
+        margin-bottom: 20px;
+    }
+
+    .input-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: var(--heading-color); /* 确保标签颜色在深色模式下可见 */
+    }
+
+    input[type="text"],
+    select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--border-color); /* 使用变量 */
+        border-radius: 6px;
+        font-size: 1em;
+        box-sizing: border-box;
+        background-color: var(--tool-input-bg); /* 新增变量，或使用其他背景色变量 */
+        color: var(--tool-input-color); /* 新增变量，或使用其他文本颜色变量 */
+    }
+
+    input[type="text"]:focus,
+    select:focus {
+        border-color: var(--link-color); /* 焦点时边框颜色 */
+        outline: none;
+        box-shadow: 0 0 5px rgba(var(--link-color-rgb), 0.5); /* 焦点时阴影 */
+    }
+
+    .output-group {
+        margin-top: 30px;
+        border-top: 1px solid var(--border-color);
+        padding-top: 20px;
+    }
+
+    .output-group label {
+        font-size: 1.1em;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: var(--heading-color);
+    }
+
+    .output-display {
+        background-color: var(--code-bg); /* 可以使用代码块的背景色 */
+        padding: 15px;
+        border-radius: 6px;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 1.1em;
+        min-height: 40px; /* 确保有足够的高度 */
+        display: flex;
+        align-items: center;
+        word-break: break-all; /* 防止长字符串溢出 */
+        white-space: pre-wrap; /* 保留空白符和换行 */
+        color: var(--body-color);
+    }
+
+    /* 响应式调整 */
+    @media (max-width: 600px) {
+        .tool-content-block {
+            padding: 20px;
+        }
+    }
+</style>
+
+<script>
+    const inputValue = document.getElementById('inputValue');
+    const inputBaseSelect = document.getElementById('inputBaseSelect');
+    const outputBaseSelect = document.getElementById('outputBaseSelect');
+    const outputValueDisplay = document.getElementById('outputValueDisplay');
+    const CUSTOM_ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_";
+
+    function populateBaseSelectors() {
+        // 循环到 CUSTOM_ALPHABET 的长度，即 64 进制
+        for (let i = 2; i <= CUSTOM_ALPHABET.length; i++) {
+            const optionInput = document.createElement('option');
+            optionInput.value = i;
+            optionInput.textContent = `${i} 进制`;
+            inputBaseSelect.appendChild(optionInput);
+
+            const optionOutput = document.createElement('option');
+            optionOutput.value = i;
+            optionOutput.textContent = `${i} 进制`;
+            outputBaseSelect.appendChild(optionOutput);
+        }
+        outputBaseSelect.value = 2; // 默认输出二进制
+    }
+
+    function convertBase() {
+        const inputString = inputValue.value.trim();
+        const inputBase = parseInt(inputBaseSelect.value);
+        const outputBase = parseInt(outputBaseSelect.value);
+
+        if (!inputString) {
+            outputValueDisplay.textContent = "请输入数字";
+            return;
+        }
+
+        try {
+            // 处理负数
+            let isNegative = false;
+            let numberToConvert = inputString;
+            if (inputString.startsWith('-')) {
+                isNegative = true;
+                numberToConvert = inputString.substring(1);
+            } else if (inputString.startsWith('+')) {
+                numberToConvert = inputString.substring(1);
+            }
+
+            // 检查输入字符串是否包含无效字符
+            // 遍历每个字符，并检查它在 CUSTOM_ALPHABET 中的索引是否小于输入进制
+            for (let i = 0; i < numberToConvert.length; i++) {
+                const char = numberToConvert[i];
+                const charIndex = CUSTOM_ALPHABET.indexOf(char); // 不再转大写，因为大小写敏感
+                if (charIndex === -1 || charIndex >= inputBase) {
+                    throw new Error(`输入字符串包含无效字符 '${char}' 或与输入进制不匹配。`);
+                }
+            }
+
+            let decimalValue = BigInt(0);
+            for (let i = 0; i < numberToConvert.length; i++) {
+                const char = numberToConvert[i];
+                const charIndex = CUSTOM_ALPHABET.indexOf(char);
+                decimalValue = decimalValue * BigInt(inputBase) + BigInt(charIndex);
+            }
+
+            if (isNegative) {
+                decimalValue = -decimalValue;
+            }
+
+            let result = '';
+            const isOutputNegative = decimalValue < BigInt(0);
+            let absDecimalValue = isOutputNegative ? -decimalValue : decimalValue;
+
+            if (absDecimalValue === BigInt(0)) {
+                result = '0';
+            } else {
+                while (absDecimalValue > BigInt(0)) {
+                    const remainder = absDecimalValue % BigInt(outputBase);
+                    result = CUSTOM_ALPHABET[Number(remainder)] + result;
+                    absDecimalValue = absDecimalValue / BigInt(outputBase);
+                }
+            }
+
+            outputValueDisplay.textContent = isOutputNegative ? '-' + result : result;
+
+        } catch (error) {
+            outputValueDisplay.textContent = `转换失败${error.message}`;
+            console.error("进制转换错误:", error);
+        }
+    }
+
+    // --- 事件监听器 ---
+    inputValue.addEventListener('input', convertBase);
+    inputBaseSelect.addEventListener('change', convertBase);
+    outputBaseSelect.addEventListener('change', convertBase);
+
+    // 页面加载时执行初始化
+    window.onload = () => {
+        populateBaseSelectors();
+        convertBase();
+    };
+</script>
