@@ -20,19 +20,40 @@ jobs:
 
   deploy_pages:
     runs-on: ubuntu-latest
-    env:
-      RUBY_VERSION: 3.3.6
-      JEKYLL_VERSION: 4.4.1
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Tree GITHUB_WORKSPACE directory
-        run: tree $GITHUB_WORKSPACE
-      - name: Print GITHUB_WORKSPACE directory
-        run: echo "$(tree $GITHUB_WORKSPACE)"
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./_site
-          publish_branch: master
+          ruby-version: ${{ env.RUBY_VERSION }}
+          bundler-cache: true
+          cache-version: 1
+
+      - name: Install Jekyll dependencies
+        run: |
+          gem install jekyll -v ${{ env.JEKYLL_VERSION }}
+          bundle install
+
+      - name: Build Jekyll site
+        run: bundle exec jekyll build --destination ./_site
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './_site'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
