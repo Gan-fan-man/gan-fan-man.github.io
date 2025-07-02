@@ -204,7 +204,7 @@ permalink: /tool/web查询/
         errorMessageDiv.innerText = ''; // 再次清空错误信息
 
         try {
-            const detailsResponse = await fetch('http://ip-api.com/json/?lang=zh-CN');
+            const detailsResponse = await fetch('https://ip-api.com/json/?lang=zh-CN');
             
             if (!detailsResponse.ok) {
                 // 如果 HTTP 响应不成功，抛出错误
