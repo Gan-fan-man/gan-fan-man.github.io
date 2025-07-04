@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="zh">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,11 +35,14 @@
   {%- seo -%}
   {%- feed_meta -%}
 
-  {%- include cookie.html -%}
   {%- include custom-head.html -%}
   
   {% if page.math %}
 	{%- include mathjax.html -%}
   {% endif %}
 
-  </head>
+</head>
+
+<body>
+  {%- include cookie.html -%}
+</body>

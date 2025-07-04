@@ -1,0 +1,462 @@
+---
+layout: tool
+title: 三阶速拧计时
+permalink: /tool/三阶速拧计时/
+---
+<h2 style="text-align: center; margin-bottom: 20px;">三阶速拧计时</h2>
+
+<div class="timer-container">
+    <div class="scramble-container">
+        <div id="scrambleDisplay" class="scramble-display">正在生成打乱公式...</div>
+        <button id="nextScrambleBtn" class="tool-button">下一条</button>
+    </div>
+
+    <div id="timerArea" class="timer-area">
+        <span id="timerDisplay">0.000</span>
+    </div>
+
+    <div id="instructionDisplay" class="info-message">长按空格或点击方块准备</div>
+
+    <div id="statsContainer" class="stats-container">
+        <div class="stat-item">
+            <h4>最快3次平均 (Ao3)</h4>
+            <span id="ao3Display">-</span>
+        </div>
+        <div class="stat-item">
+            <h4>近5次平均 (Ao5)</h4>
+            <span id="ao5Display">-</span>
+        </div>
+        <div class="stat-item">
+            <h4>总平均</h4>
+            <span id="totalAvgDisplay">-</span>
+        </div>
+    </div>
+
+    <div id="historyContainer" class="history-container">
+        <div class="history-header">
+            <h3>历史成绩</h3>
+            <button id="clearHistoryBtn" class="tool-button clear-button">清除数据</button>
+        </div>
+        <div id="historyContent">
+            <ul id="historyList"></ul>
+            <p id="historyPlaceholder">正在加载记录...</p>
+        </div>
+    </div>
+</div>
+
+<div id="confirmClearModal" class="modal-overlay">
+    <div class="modal-content">
+        <p>你确定要清空历史记录吗？此操作不可撤销。</p>
+        <div class="modal-buttons">
+            <button id="confirmClear" class="tool-button confirm-ok">确定</button>
+            <button id="cancelClear" class="tool-button confirm-cancel">取消</button>
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .timer-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background-color: var(--tool-content-bg);
+        border-radius: 8px;
+        box-shadow: var(--tool-content-shadow);
+        width: 90%;
+        max-width: 700px;
+        margin: 20px auto;
+        box-sizing: border-box;
+        color: var(--tool-content-color);
+    }
+
+    .scramble-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+    .scramble-display {
+        font-family: var(--code-font), monospace;
+        font-size: 1.4em;
+        font-weight: bold;
+        color: var(--tool-content-color);
+        text-align: center;
+        padding: 10px;
+        background-color: var(--tool-input-bg);
+        border-radius: 6px;
+        min-height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-grow: 1;
+    }
+
+    #nextScrambleBtn {
+        margin-top: 0;
+        flex-shrink: 0;
+    }
+
+    .timer-area {
+        width: 100%;
+        padding: 40px 0;
+        background-color: var(--tool-input-bg);
+        border: 2px solid var(--tool-input-border);
+        border-radius: 8px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: var(--code-font), monospace;
+        font-size: 5em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.1s ease, border-color 0.1s ease, color 0.1s ease;
+        user-select: none;
+        color: var(--tool-input-color);
+    }
+
+    .timer-area.ready {
+        color: var(--tool-button-color);
+        background-color: var(--red);
+        border-color: var(--red);
+    }
+
+    .timer-area.timing {
+        color: var(--tool-button-color);
+        background-color: var(--green);
+        border-color: var(--green);
+    }
+
+    .info-message {
+        font-size: 1.1em;
+        color: var(--gray-600);
+        margin-top: 15px;
+        min-height: 1.2em;
+    }
+
+    .stats-container {
+        display: flex;
+        justify-content: space-around;
+        width: 100%;
+        margin-top: 25px;
+        padding: 15px;
+        background-color: var(--tool-input-bg);
+        border-radius: 8px;
+    }
+
+    .stat-item { text-align: center; }
+    .stat-item h4 { margin: 0 0 10px 0; font-size: 1em; color: var(--gray-600); }
+    .stat-item span { font-size: 1.5em; font-weight: bold; color: var(--blue); }
+
+    .history-container {
+        width: 100%; margin-top: 30px; padding: 15px;
+        border: 1px solid var(--border-color); border-radius: 8px;
+        background-color: var(--tool-input-bg);
+    }
+    .history-header {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 10px; color: var(--tool-content-color);
+    }
+    .history-header h3 { margin: 0; }
+    #historyList {
+        list-style-type: none; padding: 0; margin: 0;
+        max-height: 250px; overflow-y: auto; color: var(--tool-content-color);
+    }
+    #historyList li {
+        padding: 8px 5px; border-bottom: 1px solid var(--border-color);
+        display: flex; justify-content: space-between; font-size: 0.95em;
+    }
+    #historyList li:last-child { border-bottom: none; }
+    #historyList .time-score { font-weight: bold; color: var(--blue); }
+    #historyList .test-date { color: var(--gray-600); font-size: 0.9em; }
+    #historyPlaceholder { text-align: center; color: var(--gray-600); padding: 20px 0; }
+
+    .tool-button {
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
+    }
+    .tool-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .clear-button { margin-top: 0; padding: 5px 10px; font-size: 0.9em; }
+
+    .modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.5); display: none;
+        justify-content: center; align-items: center; z-index: 1000;
+    }
+    .modal-content {
+        background: var(--tool-content-bg); color: var(--tool-content-color);
+        padding: 30px; border-radius: 8px; text-align: center;
+        box-shadow: var(--tool-content-shadow); width: 90%; max-width: 400px;
+    }
+    .modal-content p { margin: 0 0 25px; }
+    .modal-buttons { display: flex; justify-content: center; gap: 15px; }
+    .modal-buttons .tool-button { margin-top: 0; }
+    .confirm-ok { background-color: var(--red) !important; }
+    .confirm-ok:hover { background-color: #d94848 !important; }
+    .confirm-cancel { background-color: var(--gray-600) !important; }
+    .confirm-cancel:hover { background-color: var(--gray-700) !important; }
+
+    @media (max-width: 768px) {
+        .timer-container { width: 95%; padding: 15px; }
+        .scramble-container { flex-direction: column; gap: 10px; }
+        .scramble-display { font-size: 1.1em; }
+        .timer-area { font-size: 3.5em; padding: 30px 0; }
+        .info-message { font-size: 1em; }
+        .stats-container { flex-direction: column; gap: 15px; }
+        .stat-item span { font-size: 1.3em; }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const scrambleDisplay = document.getElementById('scrambleDisplay');
+    const nextScrambleBtn = document.getElementById('nextScrambleBtn');
+    const timerArea = document.getElementById('timerArea');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const instructionDisplay = document.getElementById('instructionDisplay');
+    const ao3Display = document.getElementById('ao3Display');
+    const ao5Display = document.getElementById('ao5Display');
+    const totalAvgDisplay = document.getElementById('totalAvgDisplay');
+    const historyList = document.getElementById('historyList');
+    const historyPlaceholder = document.getElementById('historyPlaceholder');
+    const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+    const confirmClearModal = document.getElementById('confirmClearModal');
+    const confirmClearBtn = document.getElementById('confirmClear');
+    const cancelClearBtn = document.getElementById('cancelClear');
+
+    let state = 'idle';
+    let startTime = 0;
+    let timerInterval;
+    let prepareTimeout;
+    const PREPARE_DELAY = 500;
+    let times = [];
+
+    const moves = ["U", "D", "F", "B", "R", "L"];
+    const modifiers = ["", "'", "2"];
+
+    function generateScramble() {
+        let scramble = [];
+        let lastMove = '';
+        const scrambleLength = Math.floor(Math.random() * 6) + 20; // 20-25
+
+        while (scramble.length < scrambleLength) {
+            let move = moves[Math.floor(Math.random() * moves.length)];
+            if (move === lastMove) continue;
+
+            let modifier = modifiers[Math.floor(Math.random() * modifiers.length)];
+            scramble.push(move + modifier);
+            lastMove = move;
+        }
+        scrambleDisplay.textContent = scramble.join(' ');
+    }
+
+    function setCookie(name, value, days) {
+        let expires = "";
+        if (days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie = name + "=" + (value || "")  + expires + "; path=/; SameSite=Lax";
+    }
+
+    function getCookie(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for(let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
+    }
+
+    function checkCookieEnabled() {
+        setCookie('cookie_test', 'test', 1);
+        if (getCookie('cookie_test')) {
+            setCookie('cookie_test', '', -1);
+            return true;
+        }
+        return false;
+    }
+
+    function loadHistory() {
+        const cookieEnabled = checkCookieEnabled();
+        const historyData = getCookie('rubiks_times');
+        
+        if (historyData) {
+            try {
+                times = JSON.parse(historyData);
+                if (!Array.isArray(times)) times = [];
+            } catch (e) {
+                console.error("解析历史记录失败:", e);
+                times = [];
+            }
+        } else {
+            times = [];
+        }
+
+        if (!cookieEnabled && times.length === 0) {
+            historyPlaceholder.textContent = '启用cookie以获得完整体验';
+            historyList.style.display = 'none';
+            historyPlaceholder.style.display = 'block';
+            clearHistoryBtn.style.display = 'none';
+        } else {
+            updateDisplay();
+        }
+    }
+
+    function saveHistory() {
+        if (checkCookieEnabled()) {
+            setCookie('rubiks_times', JSON.stringify(times), 365);
+        }
+        updateDisplay();
+    }
+    
+    function formatTime(ms) { return (ms / 1000).toFixed(3); }
+
+    function updateDisplay() {
+        if (times.length > 0) {
+            historyList.innerHTML = '';
+            times.forEach((record, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span>#${times.length - index}</span>
+                    <span class="time-score">${formatTime(record.time)}s</span>
+                    <span class="test-date">${new Date(record.date).toLocaleString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                `;
+                historyList.appendChild(li);
+            });
+            historyList.style.display = 'block';
+            historyPlaceholder.style.display = 'none';
+            clearHistoryBtn.style.display = 'inline-block';
+        } else {
+            historyPlaceholder.textContent = '目前无记录';
+            historyList.innerHTML = '';
+            historyList.style.display = 'none';
+            historyPlaceholder.style.display = 'block';
+            clearHistoryBtn.style.display = 'none';
+        }
+        calculateStats();
+    }
+
+    function calculateStats() {
+        const validTimes = times.map(t => t.time);
+        totalAvgDisplay.textContent = (validTimes.length > 0) ? formatTime(validTimes.reduce((a, b) => a + b, 0) / validTimes.length) : '-';
+        if (validTimes.length >= 5) {
+            const last5 = validTimes.slice(0, 5).sort((a, b) => a - b);
+            ao5Display.textContent = formatTime((last5[1] + last5[2] + last5[3]) / 3);
+        } else { ao5Display.textContent = '-'; }
+        if (validTimes.length >= 3) {
+            const best3 = [...validTimes].sort((a, b) => a - b).slice(0, 3);
+            ao3Display.textContent = formatTime(best3.reduce((a, b) => a + b, 0) / 3);
+        } else { ao3Display.textContent = '-'; }
+    }
+
+    function clearHistory() {
+        times = [];
+        setCookie('rubiks_times', '', -1);
+        updateDisplay();
+        confirmClearModal.style.display = 'none';
+    }
+
+    function handlePress() {
+        if (state === 'timing') {
+            stopTimer();
+            return;
+        }
+        if (state === 'idle' || state === 'stopped') {
+            state = 'preparing';
+            instructionDisplay.textContent = '准备...';
+            timerArea.classList.remove('timing', 'ready');
+            
+            prepareTimeout = setTimeout(() => {
+                if (state === 'preparing') {
+                    state = 'ready';
+                    timerArea.classList.add('ready');
+                    timerDisplay.textContent = '0.000';
+                    instructionDisplay.textContent = '松开以开始计时';
+                }
+            }, PREPARE_DELAY);
+        }
+    }
+
+    function handleRelease() {
+        clearTimeout(prepareTimeout);
+        if (state === 'ready') {
+            state = 'timing';
+            startTime = Date.now();
+            timerArea.classList.remove('ready');
+            timerArea.classList.add('timing');
+            instructionDisplay.textContent = '计时中...';
+            
+            timerInterval = setInterval(() => {
+                timerDisplay.textContent = formatTime(Date.now() - startTime);
+            }, 50);
+        } else if (state === 'preparing') {
+            state = 'idle';
+            instructionDisplay.textContent = '长按空格或点击方块准备';
+        }
+    }
+
+    function stopTimer() {
+        state = 'stopped';
+        clearInterval(timerInterval);
+        const elapsedTime = Date.now() - startTime;
+        
+        timerDisplay.textContent = formatTime(elapsedTime);
+        timerArea.classList.remove('timing');
+        instructionDisplay.textContent = '长按空格或点击方块准备';
+
+        const newRecord = {
+            time: elapsedTime,
+            date: new Date().toISOString(),
+            scramble: scrambleDisplay.textContent
+        };
+        times.unshift(newRecord);
+        saveHistory();
+        generateScramble();
+        
+        setTimeout(() => { if(state === 'stopped') state = 'idle'; }, 200);
+    }
+
+    timerArea.addEventListener('mousedown', handlePress);
+    document.addEventListener('mouseup', handleRelease);
+    document.addEventListener('touchstart', (e) => { if(e.target === timerArea) handlePress(); });
+    document.addEventListener('touchend', handleRelease);
+
+    document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') {
+            e.preventDefault();
+        }
+        if (e.code === 'Space' && !e.repeat) {
+            handlePress();
+        }
+    });
+    document.addEventListener('keyup', (e) => {
+        if (e.code === 'Space') {
+            e.preventDefault();
+            handleRelease();
+        }
+    });
+    
+    nextScrambleBtn.addEventListener('click', generateScramble);
+    clearHistoryBtn.addEventListener('click', () => { confirmClearModal.style.display = 'flex'; });
+    cancelClearBtn.addEventListener('click', () => { confirmClearModal.style.display = 'none'; });
+    confirmClearBtn.addEventListener('click', clearHistory);
+
+    function initializeApp() {
+        generateScramble();
+        loadHistory();
+    }
+
+    initializeApp();
+});
+</script>

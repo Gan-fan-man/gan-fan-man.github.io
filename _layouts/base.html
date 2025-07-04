@@ -2,14 +2,7 @@
 It establishes the core structure, including meta-information, header with navigation and social links, and the main content area.
 Associated CSS styles are managed within the respective page files.-->
 {%- include head.html -%}
-<!DOCTYPE html>
-<html lang="zh">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
-    <link rel="stylesheet" href="{{ '/assets/styles.css' | relative_url }}">
-</head>
+
 <body>
     <header class="fixed-header">
         <div class="header-left">

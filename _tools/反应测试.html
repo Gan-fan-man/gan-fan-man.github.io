@@ -1,0 +1,565 @@
+---
+layout: tool
+title: 反应测试
+permalink: /tool/反应测试/
+---
+<h2 style="text-align: center; margin-bottom: 20px;">反应速度测试</h2>
+
+<div class="reaction-main-content-wrapper">
+    <div id="reactionArea" class="reaction-area">
+        <span id="timerDisplay">点击开始</span>
+    </div>
+    <div id="resultDisplay" class="result-message"></div>
+    <button id="resetButton" class="tool-button reset-button">重新开始</button>
+
+    <!-- 统计数据显示区块 -->
+    <div id="statsContainer" class="stats-container">
+        <div class="stat-item">
+            <h4>最快3次平均 (Ao3)</h4>
+            <span id="ao3Display">-</span>
+        </div>
+        <div class="stat-item">
+            <h4>近5次平均 (Ao5)</h4>
+            <span id="ao5Display">-</span>
+        </div>
+        <div class="stat-item">
+            <h4>总平均</h4>
+            <span id="totalAvgDisplay">-</span>
+        </div>
+    </div>
+
+    <!-- 历史记录区块 -->
+    <div id="historyContainer" class="history-container">
+        <div class="history-header">
+            <h3>历史成绩</h3>
+            <button id="clearHistoryBtn" class="tool-button clear-button" style="display: none;">清除数据</button>
+        </div>
+        <div id="historyContent">
+            <ul id="historyList"></ul>
+            <p id="historyPlaceholder">正在加载记录...</p>
+        </div>
+    </div>
+</div>
+
+<!-- 清除确认弹窗 -->
+<div id="confirmClearModal" class="modal-overlay">
+    <div class="modal-content">
+        <p>你确定要清空历史记录吗？此操作不可撤销。</p>
+        <div class="modal-buttons">
+            <button id="confirmClear" class="tool-button confirm-ok">确定</button>
+            <button id="cancelClear" class="tool-button confirm-cancel">取消</button>
+        </div>
+    </div>
+</div>
+
+<style>
+
+    /* 新增的主内容包裹器，用于替代 reaction-container */
+    .reaction-main-content-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* 居中子元素 */
+        width: 100%; /* 占据父容器 tool-page-container 的全部宽度 */
+        margin: 0 auto; /* 在 tool-page-container 内居中 */
+        padding: 0; /* tool-page-container 已有内边距 */
+    }
+
+    .reaction-area {
+        width: 100%; /* 占据 reaction-main-content-wrapper 的全部宽度 */
+        height: 450px; /* 增加高度 */
+        background-color: var(--tool-input-bg); /* Default background color */
+        border: 2px solid var(--tool-input-border);
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-size: 3.5em; /* 增加字体大小 */
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.2s ease, border-color 0.2s ease;
+        user-select: none;
+        position: relative;
+        overflow: hidden;
+        color: var(--tool-input-color);
+        margin-bottom: 20px; /* 与下方元素保持间距 */
+    }
+
+    /* Green state when test starts */
+    .reaction-area.waiting {
+        background-color: var(--green); /* Green */
+        color: var(--tool-button-color); /* Button text color, usually white */
+        border-color: var(--green);
+    }
+
+    /* Red state when ready to click */
+    .reaction-area.ready-to-click {
+        background-color: var(--red); /* Red */
+        color: var(--tool-button-color); /* Button text color, usually white */
+        border-color: var(--red);
+    }
+
+    /* Disabled state after test or before start */
+    .reaction-area.disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+        background-color: var(--tool-input-bg); /* 禁用时恢复默认背景色 */
+        color: var(--tool-input-color);
+    }
+
+    .result-message {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: var(--blue);
+        margin-top: 0; /* 调整间距，由 reaction-area 的 margin-bottom 控制 */
+        margin-bottom: 20px; /* 与下方元素保持间距 */
+        min-height: 1.5em; /* Prevent content jump */
+    }
+
+    .tool-button {
+        background-color: var(--tool-button-bg);
+        color: var(--tool-button-color);
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
+        margin-top: 0; /* 调整间距，由上一个元素的 margin-bottom 控制 */
+        margin-bottom: 20px; /* 与下方元素保持间距 */
+        transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    /* Button responsive design */
+    .tool-button:hover {
+        background-color: var(--tool-button-hover-bg);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    /* History section styles */
+    .history-container {
+        width: 100%; /* 占据 reaction-main-content-wrapper 的全部宽度 */
+        margin-top: 0; /* 调整间距，由上一个元素的 margin-bottom 控制 */
+        padding: 15px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background-color: var(--tool-input-bg);
+    }
+
+    .history-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        color: var(--tool-content-color);
+    }
+
+    .history-header h3 {
+        margin: 0;
+    }
+
+    .clear-button {
+        margin-top: 0;
+        padding: 5px 10px;
+        font-size: 0.9em;
+    }
+
+    #historyList {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        max-height: 200px;
+        overflow-y: auto;
+        color: var(--tool-content-color);
+    }
+
+    #historyList li {
+        padding: 8px 5px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.95em;
+    }
+
+    #historyList li:last-child {
+        border-bottom: none;
+    }
+    
+    #historyList .reaction-time {
+        font-weight: bold;
+        color: var(--blue);
+    }
+
+    #historyList .test-date {
+        color: var(--gray-600);
+        font-size: 0.9em;
+    }
+
+    #historyPlaceholder {
+        text-align: center;
+        color: var(--gray-600);
+        padding: 20px 0;
+    }
+
+    /* Modal styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: none; /* Hidden by default */
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .modal-content {
+        background: var(--tool-content-bg);
+        color: var(--tool-content-color);
+        padding: 30px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: var(--tool-content-shadow);
+        width: 90%;
+        max-width: 400px;
+    }
+    
+    .modal-content p {
+        margin: 0 0 25px;
+    }
+
+    .modal-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .modal-buttons .tool-button {
+        margin-top: 0;
+    }
+
+    .confirm-ok {
+        background-color: var(--red) !important;
+    }
+
+    .confirm-ok:hover {
+        background-color: #d94848 !important; /* Darker red */
+    }
+    
+    .confirm-cancel {
+        background-color: var(--gray-600) !important;
+    }
+    
+    .confirm-cancel:hover {
+        background-color: var(--gray-700) !important;
+    }
+
+    /* Stats container styles */
+    .stats-container {
+        display: flex;
+        justify-content: space-around;
+        width: 100%; /* Match history container width */
+        margin-top: 0; /* 调整间距，由上一个元素的 margin-bottom 控制 */
+        margin-bottom: 20px; /* 与下方元素保持间距 */
+        padding: 15px;
+        background-color: var(--tool-input-bg);
+        border-radius: 8px;
+        color: var(--tool-content-color);
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+    .stat-item h4 {
+        margin: 0 0 10px 0;
+        font-size: 1em;
+        color: var(--gray-600);
+    }
+    .stat-item span {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: var(--blue);
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .reaction-main-content-wrapper {
+            width: 95%;
+        }
+
+        .reaction-area {
+            height: 250px; /* Adjust height for smaller screens */
+            font-size: 2.5em; /* Adjust font size for smaller screens */
+        }
+
+        .result-message {
+            font-size: 1.2em;
+        }
+
+        .tool-button {
+            padding: 8px 15px;
+            font-size: 0.9em;
+        }
+
+        .stats-container {
+            flex-direction: column;
+            gap: 15px;
+        }
+        .stat-item span {
+            font-size: 1.3em;
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // DOM Elements
+    const reactionArea = document.getElementById('reactionArea');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const resultDisplay = document.getElementById('resultDisplay');
+    const resetButton = document.getElementById('resetButton');
+    const historyContainer = document.getElementById('historyContainer');
+    const historyList = document.getElementById('historyList');
+    const historyPlaceholder = document.getElementById('historyPlaceholder');
+    const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+    const confirmClearModal = document.getElementById('confirmClearModal');
+    const confirmClearBtn = document.getElementById('confirmClear');
+    const cancelClearBtn = document = document.getElementById('cancelClear');
+
+    // Variables
+    let testState = 'idle'; // 'idle', 'waiting', 'ready', 'finished'
+    let startTime = 0;
+    let reactionTimeout;
+    let reactionTimes = [];
+
+    // --- Cookie Operations ---
+    function setCookie(name, value, days) {
+        let expires = "";
+        if (days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie = name + "=" + (value || "")  + expires + "; path=/; SameSite=Lax";
+    }
+
+    function getCookie(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for(let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
+    }
+
+    function checkCookieEnabled() {
+        setCookie('cookie_test_reaction', 'test', 1);
+        if (getCookie('cookie_test_reaction')) {
+            setCookie('cookie_test_reaction', '', -1); // Clear test cookie
+            return true;
+        }
+        return false;
+    }
+
+    // --- History Operations ---
+    function loadHistory() {
+        const cookieEnabled = checkCookieEnabled();
+        const historyData = getCookie('reaction_history');
+
+        if (historyData) {
+            try {
+                reactionTimes = JSON.parse(historyData);
+                if (!Array.isArray(reactionTimes)) reactionTimes = [];
+            } catch (e) {
+                console.error("Failed to parse history records:", e);
+                reactionTimes = [];
+            }
+        } else {
+            reactionTimes = [];
+        }
+
+        if (!cookieEnabled && reactionTimes.length === 0) {
+            historyPlaceholder.textContent = '请同意cookie以启用此功能';
+            historyList.style.display = 'none';
+            historyPlaceholder.style.display = 'block';
+            clearHistoryBtn.style.display = 'none';
+        } else {
+            updateHistoryDisplay();
+        }
+    }
+
+    function saveHistory(time) {
+        // Only save if cookie is enabled and time is valid (not 0 for early clicks)
+        if (checkCookieEnabled() && time > 0) {
+            const newRecord = {
+                time: time,
+                date: new Date().toISOString()
+            };
+            reactionTimes.unshift(newRecord); // Add new record to the beginning
+            
+            // Optional: Limit history records
+            if (reactionTimes.length > 50) {
+                reactionTimes.pop();
+            }
+
+            setCookie('reaction_history', JSON.stringify(reactionTimes), 365);
+        }
+        updateHistoryDisplay();
+    }
+
+    function updateHistoryDisplay() {
+        if (reactionTimes.length > 0) {
+            historyList.innerHTML = '';
+            reactionTimes.forEach((record, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span>#${reactionTimes.length - index}</span>
+                    <span class="reaction-time">${record.time} ms</span>
+                    <span class="test-date">${new Date(record.date).toLocaleString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                `;
+                historyList.appendChild(li);
+            });
+            historyList.style.display = 'block';
+            historyPlaceholder.style.display = 'none';
+            clearHistoryBtn.style.display = 'inline-block';
+        } else {
+            historyPlaceholder.textContent = '目前无记录';
+            historyList.innerHTML = '';
+            historyList.style.display = 'none';
+            historyPlaceholder.style.display = 'block';
+            clearHistoryBtn.style.display = 'none';
+        }
+        calculateStats();
+    }
+
+    function calculateStats() {
+        // Filter out invalid times (early clicks, where time is 0)
+        const validTimes = reactionTimes.map(t => t.time).filter(time => time > 0);
+        
+        // Total Average
+        const totalAvg = validTimes.length > 0 ? (validTimes.reduce((a, b) => a + b, 0) / validTimes.length).toFixed(0) : '-';
+        document.getElementById('totalAvgDisplay').textContent = totalAvg + (totalAvg !== '-' ? ' ms' : '');
+
+        // Average of 5 (Ao5) - best of 5, dropping fastest and slowest
+        if (validTimes.length >= 5) {
+            const last5 = validTimes.slice(0, 5).sort((a, b) => a - b);
+            const ao5 = ((last5[1] + last5[2] + last5[3]) / 3).toFixed(0);
+            document.getElementById('ao5Display').textContent = ao5 + ' ms';
+        } else {
+            document.getElementById('ao5Display').textContent = '-';
+        }
+
+        // Best 3 Average (Ao3) - best of all records, taking top 3
+        if (validTimes.length >= 3) {
+            const best3 = [...validTimes].sort((a, b) => a - b).slice(0, 3);
+            const ao3 = (best3.reduce((a, b) => a + b, 0) / 3).toFixed(0);
+            document.getElementById('ao3Display').textContent = ao3 + ' ms';
+        } else {
+            document.getElementById('ao3Display').textContent = '-';
+        }
+    }
+
+    function clearHistory() {
+        reactionTimes = [];
+        setCookie('reaction_history', '', -1); // Delete cookie
+        updateHistoryDisplay();
+        confirmClearModal.style.display = 'none'; // Close modal after clearing
+    }
+
+    // --- Test Core Logic ---
+    function startTest() {
+        if (testState !== 'idle') return; // Only start if in idle state
+
+        testState = 'waiting';
+        resultDisplay.textContent = ''; // Clear previous result
+        timerDisplay.textContent = ''; // Clear "点击开始" text
+        reactionArea.classList.remove('ready-to-click', 'disabled');
+        reactionArea.classList.add('waiting'); // Turn green
+
+        // Random delay from 3 to 10 seconds (3000ms - 10000ms)
+        const delay = Math.random() * (10000 - 3000) + 3000;
+
+        reactionTimeout = setTimeout(() => {
+            if (testState === 'waiting') { // Ensure still in waiting state before turning red
+                testState = 'ready';
+                reactionArea.classList.remove('waiting');
+                reactionArea.classList.add('ready-to-click'); // Turn red
+                startTime = Date.now(); // Record time when it turns red
+                timerDisplay.textContent = '0 ms'; // Show 0 ms when ready to click
+            }
+        }, delay);
+    }
+
+    function handleReactionClick() {
+        if (testState === 'idle') {
+            startTest(); // Start the test if in idle state
+        } else if (testState === 'ready') {
+            // Valid click after turning red
+            const reactionTime = Date.now() - startTime;
+            resultDisplay.textContent = `您的反应时间: ${reactionTime} ms`;
+            timerDisplay.textContent = `${reactionTime} ms`; // Show reaction time
+            saveHistory(reactionTime); // Save valid reaction time
+            endTest();
+        } else if (testState === 'waiting') {
+            // Clicked too early (before turning red)
+            resultDisplay.textContent = '太早了！';
+            timerDisplay.textContent = '太早了！'; // Show "太早了！"
+            // Do NOT save to history for early clicks (handled by saveHistory's time > 0 check)
+            clearTimeout(reactionTimeout); // Clear the pending red flash
+            endTest();
+        }
+        // If testState is 'finished', do nothing on click (handled by endTest setting disabled class and CSS cursor)
+    }
+
+    function endTest() {
+        testState = 'finished'; // Set state to finished, awaiting reset
+        reactionArea.classList.remove('waiting', 'ready-to-click');
+        reactionArea.classList.add('disabled'); // Make it unclickable and show disabled cursor
+        clearTimeout(reactionTimeout); // Ensure any pending timeouts are cleared
+    }
+
+    function resetTest() {
+        testState = 'idle';
+        clearTimeout(reactionTimeout); // Clear any active timeouts
+        resultDisplay.textContent = '';
+        timerDisplay.textContent = '点击开始'; // Reset timerDisplay text
+        reactionArea.classList.remove('waiting', 'ready-to-click', 'disabled'); // Remove all state classes, including 'disabled'
+        // The reactionArea is now in its default style and clickable again for a new test.
+    }
+
+    // --- Event Listeners ---
+    reactionArea.addEventListener('mousedown', handleReactionClick); // Use a single handler for clicks on the area
+
+    resetButton.addEventListener('click', resetTest); // Reset button to restart the test
+
+    // Clear history button and modal logic
+    clearHistoryBtn.addEventListener('click', () => {
+        confirmClearModal.style.display = 'flex';
+    });
+
+    cancelClearBtn.addEventListener('click', () => {
+        confirmClearModal.style.display = 'none';
+    });
+
+    confirmClearBtn.addEventListener('click', clearHistory);
+
+    // Listen for cookie consent event, if user agreed, reload history
+    document.addEventListener('cookieConsent', (event) => {
+        if (event.detail.consent === 'agreed') {
+            loadHistory();
+        }
+    });
+
+    // --- Initialization ---
+    function initializeApp() {
+        resetTest(); // Initial reset to set up the area correctly for the first test
+        loadHistory(); // Load history and calculate stats on page load
+    }
+
+    initializeApp();
+});
+</script>
