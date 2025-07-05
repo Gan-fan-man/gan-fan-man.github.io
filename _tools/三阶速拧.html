@@ -238,21 +238,61 @@ document.addEventListener('DOMContentLoaded', () => {
     const PREPARE_DELAY = 500;
     let times = [];
 
-    const moves = ["U", "D", "F", "B", "R", "L"];
-    const modifiers = ["", "'", "2"];
+    /**
+     * Helper function to determine the axis of a move.
+     * @param {string} move - The face of the move (e.g., 'R', 'L', 'U').
+     * @returns {string} The axis ('RL', 'UD', 'FB').
+     */
+    function getAxis(move) {
+        const moveFace = move.charAt(0);
+        if (moveFace === 'R' || moveFace === 'L') return 'RL';
+        if (moveFace === 'U' || moveFace === 'D') return 'UD';
+        if (moveFace === 'F' || moveFace === 'B') return 'FB';
+        return null;
+    }
 
+    /**
+     * UPDATED: Generates a high-quality scramble for a 3x3 cube.
+     * Rules:
+     * 1. A move cannot be the same as the previous move (e.g., no R R).
+     * 2. A move cannot be on the same axis as the previous two moves (e.g., no R L R).
+     */
     function generateScramble() {
+        const moves = ["U", "D", "F", "B", "R", "L"];
+        const modifiers = ["", "'", "2"];
         let scramble = [];
-        let lastMove = '';
-        const scrambleLength = Math.floor(Math.random() * 6) + 20; // 20-25
+        const scrambleLength = Math.floor(Math.random() * 3) + 20; // 20-22 moves
 
         while (scramble.length < scrambleLength) {
-            let move = moves[Math.floor(Math.random() * moves.length)];
-            if (move === lastMove) continue;
+            let move;
+            let isValid = false;
 
+            // Keep trying to find a valid move that follows the rules
+            while (!isValid) {
+                move = moves[Math.floor(Math.random() * moves.length)];
+                
+                // Rule 1: The new move's face cannot be the same as the last move's face.
+                if (scramble.length > 0 && move === scramble[scramble.length - 1].charAt(0)) {
+                    continue; // Invalid, try again
+                }
+
+                // Rule 2: The new move cannot be on the same axis as the previous two moves.
+                if (scramble.length > 1) {
+                    const lastMoveFace = scramble[scramble.length - 1].charAt(0);
+                    const secondLastMoveFace = scramble[scramble.length - 2].charAt(0);
+                    
+                    if (getAxis(move) === getAxis(lastMoveFace) && getAxis(move) === getAxis(secondLastMoveFace)) {
+                        continue; // Invalid, try again
+                    }
+                }
+                
+                // If both rules pass, the move is valid
+                isValid = true;
+            }
+
+            // Add a random modifier and push to the scramble array
             let modifier = modifiers[Math.floor(Math.random() * modifiers.length)];
             scramble.push(move + modifier);
-            lastMove = move;
         }
         scrambleDisplay.textContent = scramble.join(' ');
     }

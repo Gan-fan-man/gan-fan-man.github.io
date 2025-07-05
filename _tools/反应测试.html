@@ -53,7 +53,6 @@ permalink: /tool/反应测试/
 </div>
 
 <style>
-
     /* 新增的主内容包裹器，用于替代 reaction-container */
     .reaction-main-content-wrapper {
         display: flex;
@@ -66,7 +65,7 @@ permalink: /tool/反应测试/
 
     .reaction-area {
         width: 100%; /* 占据 reaction-main-content-wrapper 的全部宽度 */
-        height: 450px; /* 增加高度 */
+        height: 500px; /* 增加高度 */
         background-color: var(--tool-input-bg); /* Default background color */
         border: 2px solid var(--tool-input-border);
         border-radius: 8px;
@@ -85,18 +84,18 @@ permalink: /tool/反应测试/
         margin-bottom: 20px; /* 与下方元素保持间距 */
     }
 
-    /* Green state when test starts */
+    /* Test starts (now red) */
     .reaction-area.waiting {
-        background-color: var(--green); /* Green */
-        color: var(--tool-button-color); /* Button text color, usually white */
-        border-color: var(--green);
-    }
-
-    /* Red state when ready to click */
-    .reaction-area.ready-to-click {
-        background-color: var(--red); /* Red */
+        background-color: var(--red); /* Changed from green to red */
         color: var(--tool-button-color); /* Button text color, usually white */
         border-color: var(--red);
+    }
+
+    /* Ready to click (now green) */
+    .reaction-area.ready-to-click {
+        background-color: var(--green); /* Changed from red to green */
+        color: var(--tool-button-color); /* Button text color, usually white */
+        border-color: var(--green);
     }
 
     /* Disabled state after test or before start */
@@ -326,7 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearHistoryBtn = document.getElementById('clearHistoryBtn');
     const confirmClearModal = document.getElementById('confirmClearModal');
     const confirmClearBtn = document.getElementById('confirmClear');
-    const cancelClearBtn = document = document.getElementById('cancelClear');
+    const cancelClearBtn = document.getElementById('cancelClear');
 
     // Variables
     let testState = 'idle'; // 'idle', 'waiting', 'ready', 'finished'
@@ -478,17 +477,17 @@ document.addEventListener('DOMContentLoaded', () => {
         resultDisplay.textContent = ''; // Clear previous result
         timerDisplay.textContent = ''; // Clear "点击开始" text
         reactionArea.classList.remove('ready-to-click', 'disabled');
-        reactionArea.classList.add('waiting'); // Turn green
+        reactionArea.classList.add('waiting'); // Turn red (was green)
 
-        // Random delay from 3 to 10 seconds (3000ms - 10000ms)
-        const delay = Math.random() * (10000 - 3000) + 3000;
+        // Random delay from 2 to 5 seconds (2000ms - 5000ms)
+        const delay = Math.random() * (5000 - 2000) + 2000;
 
         reactionTimeout = setTimeout(() => {
-            if (testState === 'waiting') { // Ensure still in waiting state before turning red
+            if (testState === 'waiting') { // Ensure still in waiting state before turning green
                 testState = 'ready';
                 reactionArea.classList.remove('waiting');
-                reactionArea.classList.add('ready-to-click'); // Turn red
-                startTime = Date.now(); // Record time when it turns red
+                reactionArea.classList.add('ready-to-click'); // Turn green (was red)
+                startTime = Date.now(); // Record time when it turns green
                 timerDisplay.textContent = '0 ms'; // Show 0 ms when ready to click
             }
         }, delay);
@@ -498,18 +497,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (testState === 'idle') {
             startTest(); // Start the test if in idle state
         } else if (testState === 'ready') {
-            // Valid click after turning red
+            // Valid click after turning green
             const reactionTime = Date.now() - startTime;
             resultDisplay.textContent = `您的反应时间: ${reactionTime} ms`;
             timerDisplay.textContent = `${reactionTime} ms`; // Show reaction time
             saveHistory(reactionTime); // Save valid reaction time
             endTest();
         } else if (testState === 'waiting') {
-            // Clicked too early (before turning red)
+            // Clicked too early (before turning green)
             resultDisplay.textContent = '太早了！';
             timerDisplay.textContent = '太早了！'; // Show "太早了！"
             // Do NOT save to history for early clicks (handled by saveHistory's time > 0 check)
-            clearTimeout(reactionTimeout); // Clear the pending red flash
+            clearTimeout(reactionTimeout); // Clear the pending green flash
             endTest();
         }
         // If testState is 'finished', do nothing on click (handled by endTest setting disabled class and CSS cursor)
