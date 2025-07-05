@@ -1,0 +1,486 @@
+---
+layout: tool
+title: 瞄准测试
+permalink: /tool/瞄准测试/
+---
+<h2 style="text-align: center; margin-bottom: 20px;">瞄准测试</h2>
+
+<div class="aim-main-content-wrapper">
+    <!-- 测试主区域 -->
+    <div id="aimArea" class="aim-area">
+        <div id="target" class="target-dot">
+            <span id="targetText">开始</span>
+        </div>
+    </div>
+
+    <!-- 状态显示 -->
+    <div class="status-display">
+        <span>剩余点击: <span id="clicksRemaining">60</span></span>
+    </div>
+    <div id="resultDisplay" class="result-message"></div>
+
+    <!-- 统计数据显示区块 -->
+    <div id="statsContainer" class="stats-container">
+        <div class="stat-item">
+            <h4>最快3次平均 (Ao3)</h4>
+            <span id="ao3Display">-</span>
+        </div>
+        <div class="stat-item">
+            <h4>近5次平均 (Ao5)</h4>
+            <span id="ao5Display">-</span>
+        </div>
+        <div class="stat-item">
+            <h4>总平均</h4>
+            <span id="totalAvgDisplay">-</span>
+        </div>
+    </div>
+
+    <!-- 历史记录区块 -->
+    <div id="historyContainer" class="history-container">
+        <div class="history-header">
+            <h3>历史成绩</h3>
+            <button id="clearHistoryBtn" class="tool-button clear-button" style="display: none;">清除数据</button>
+        </div>
+        <div id="historyContent">
+            <ul id="historyList"></ul>
+            <p id="historyPlaceholder">正在加载记录...</p>
+        </div>
+    </div>
+</div>
+
+<!-- 清除确认弹窗 -->
+<div id="confirmClearModal" class="modal-overlay">
+    <div class="modal-content">
+        <p>你确定要清空历史记录吗？此操作不可撤销。</p>
+        <div class="modal-buttons">
+            <button id="confirmClear" class="tool-button confirm-ok">确定</button>
+            <button id="cancelClear" class="tool-button confirm-cancel">取消</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* 主内容包裹器 */
+    .aim-main-content-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    /* 测试区域 */
+    .aim-area {
+        width: 100%;
+        height: 500px;
+        background-color: var(--tool-input-bg);
+        border: 2px solid var(--tool-input-border);
+        border-radius: 8px;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 15px;
+        cursor: crosshair;
+    }
+
+    /* 目标点 (已增大) */
+    .target-dot {
+        width: 80px; /* 增大 */
+        height: 80px; /* 增大 */
+        background-color: var(--blue);
+        border-radius: 50%;
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.8em;
+        font-weight: bold;
+        color: var(--tool-button-color);
+        cursor: pointer;
+        user-select: none;
+        transition: background-color 0.2s ease, transform 0.1s ease-out;
+        transform-origin: center;
+    }
+
+    .target-dot:hover {
+        background-color: var(--link-hover-color);
+    }
+
+    /* 点击和出现的动画 */
+    .target-dot.shrink {
+        animation: shrink 0.1s ease-out forwards;
+    }
+
+    .target-dot.grow {
+        animation: grow 0.1s ease-in forwards;
+    }
+
+    @keyframes shrink {
+        from { transform: scale(1); }
+        to { transform: scale(0.8); }
+    }
+
+    @keyframes grow {
+        from { transform: scale(0); }
+        to { transform: scale(1); }
+    }
+
+    /* 状态和结果显示 */
+    .status-display {
+        font-size: 1.2em;
+        color: var(--tool-content-color);
+        margin-bottom: 15px;
+    }
+    .result-message {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: var(--blue);
+        margin-bottom: 20px;
+        min-height: 1.5em;
+    }
+
+    /* 按钮悬停效果 (通用) */
+    .tool-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    
+    /* 清除按钮特定样式 */
+    .clear-button {
+        padding: 5px 10px;
+        font-size: 0.9em;
+    }
+
+    /* 统计和历史记录区域 */
+    .stats-container, .history-container {
+        width: 100%;
+        padding: 15px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background-color: var(--tool-input-bg);
+        color: var(--tool-content-color);
+        margin-bottom: 20px;
+    }
+    .stats-container {
+        display: flex;
+        justify-content: space-around;
+    }
+    .stat-item { text-align: center; }
+    .stat-item h4 { margin: 0 0 10px 0; font-size: 1em; color: var(--gray-600); }
+    .stat-item span { font-size: 1.5em; font-weight: bold; color: var(--blue); }
+    
+    .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .history-header h3 { margin: 0; }
+    #historyList { list-style-type: none; padding: 0; margin: 0; max-height: 200px; overflow-y: auto; }
+    #historyList li { padding: 8px 5px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; font-size: 0.95em; }
+    #historyList li:last-child { border-bottom: none; }
+    #historyList .score { font-weight: bold; color: var(--blue); }
+    #historyList .test-date { color: var(--gray-600); font-size: 0.9em; }
+    #historyPlaceholder { text-align: center; color: var(--gray-600); padding: 20px 0; }
+
+    /* 弹窗样式 */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
+    .modal-content { background: var(--tool-content-bg); color: var(--tool-content-color); padding: 30px; border-radius: 8px; text-align: center; box-shadow: var(--tool-content-shadow); width: 90%; max-width: 400px; }
+    .modal-content p { margin: 0 0 25px; }
+    .modal-buttons { display: flex; justify-content: center; gap: 15px; }
+    .confirm-ok { background-color: var(--red) !important; }
+    .confirm-ok:hover { background-color: #d94848 !important; }
+    .confirm-cancel { background-color: var(--gray-600) !important; }
+    .confirm-cancel:hover { background-color: var(--gray-700) !important; }
+
+    @media (max-width: 768px) {
+        .aim-area { height: 350px; }
+        .stats-container { flex-direction: column; gap: 15px; }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // DOM 元素
+    const aimArea = document.getElementById('aimArea');
+    const target = document.getElementById('target');
+    const targetText = document.getElementById('targetText');
+    const clicksRemainingDisplay = document.getElementById('clicksRemaining');
+    const resultDisplay = document.getElementById('resultDisplay');
+    const historyList = document.getElementById('historyList');
+    const historyPlaceholder = document.getElementById('historyPlaceholder');
+    const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+    const confirmClearModal = document.getElementById('confirmClearModal');
+    const confirmClearBtn = document.getElementById('confirmClear');
+    const cancelClearBtn = document.getElementById('cancelClear');
+    const ao3Display = document.getElementById('ao3Display');
+    const ao5Display = document.getElementById('ao5Display');
+    const totalAvgDisplay = document.getElementById('totalAvgDisplay');
+
+    // 游戏状态变量
+    let gameState = 'idle'; // idle, playing, finished
+    let totalClicks = 60;
+    let clicksLeft = totalClicks;
+    let rounds = [];
+    let currentRoundClicksNeeded = 0;
+    let currentRoundClicksDone = 0;
+    
+    // 计分变量
+    let positioningTimes = [];
+    let cpsIntervals = [];
+    let positioningStartTime = 0;
+    let cpsStartTime = 0;
+    let scores = [];
+
+    // --- Cookie 操作 ---
+    function setCookie(name, value, days) {
+        let expires = "";
+        if (days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie = name + "=" + (value || "")  + expires + "; path=/; SameSite=Lax";
+    }
+
+    function getCookie(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for(let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
+    }
+    
+    function checkCookieEnabled() {
+        setCookie('cookie_test_aim', 'test', 1);
+        if (getCookie('cookie_test_aim')) {
+            setCookie('cookie_test_aim', '', -1);
+            return true;
+        }
+        return false;
+    }
+
+    // --- 历史记录和统计 ---
+    function loadHistory() {
+        const cookieEnabled = checkCookieEnabled();
+        const historyData = getCookie('aim_history');
+        if (historyData) {
+            try {
+                scores = JSON.parse(historyData);
+                if (!Array.isArray(scores)) scores = [];
+            } catch (e) {
+                console.error("解析历史记录失败:", e);
+                scores = [];
+            }
+        } else {
+            scores = [];
+        }
+
+        if (!cookieEnabled && scores.length === 0) {
+            historyPlaceholder.textContent = '启用cookie以获得完整体验';
+        }
+        updateHistoryDisplay();
+    }
+    
+    function saveHistory(score) {
+        if (checkCookieEnabled() && score > 0) {
+            const newRecord = { score: score, date: new Date().toISOString() };
+            scores.unshift(newRecord);
+            if (scores.length > 50) scores.pop();
+            setCookie('aim_history', JSON.stringify(scores), 365);
+        }
+        updateHistoryDisplay();
+    }
+
+    function updateHistoryDisplay() {
+        if (scores.length > 0) {
+            historyList.innerHTML = '';
+            scores.forEach((record, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span>#${scores.length - index}</span>
+                    <span class="score">${record.score.toFixed(0)} 分</span>
+                    <span class="test-date">${new Date(record.date).toLocaleString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                `;
+                historyList.appendChild(li);
+            });
+            historyList.style.display = 'block';
+            historyPlaceholder.style.display = 'none';
+            clearHistoryBtn.style.display = 'inline-block';
+        } else {
+            historyPlaceholder.textContent = '目前无记录';
+            historyList.style.display = 'none';
+            clearHistoryBtn.style.display = 'none';
+        }
+        calculateStats();
+    }
+
+    function calculateStats() {
+        const validScores = scores.map(s => s.score).filter(score => score > 0);
+        
+        totalAvgDisplay.textContent = validScores.length > 0 ? (validScores.reduce((a, b) => a + b, 0) / validScores.length).toFixed(0) : '-';
+
+        if (validScores.length >= 5) {
+            const last5 = validScores.slice(0, 5);
+            ao5Display.textContent = (last5.reduce((a, b) => a + b, 0) / 5).toFixed(0);
+        } else {
+            ao5Display.textContent = '-';
+        }
+
+        if (validScores.length >= 3) {
+            const best3 = [...validScores].sort((a, b) => b - a).slice(0, 3);
+            ao3Display.textContent = (best3.reduce((a, b) => a + b, 0) / 3).toFixed(0);
+        } else {
+            ao3Display.textContent = '-';
+        }
+    }
+
+    function clearHistory() {
+        scores = [];
+        setCookie('aim_history', '', -1);
+        updateHistoryDisplay();
+        confirmClearModal.style.display = 'none';
+    }
+
+    // --- 游戏核心逻辑 ---
+    function setupInitialState() {
+        gameState = 'idle';
+        target.style.visibility = 'visible';
+        target.classList.remove('shrink', 'grow');
+        
+        const areaRect = aimArea.getBoundingClientRect();
+        target.style.left = `${(areaRect.width - target.offsetWidth) / 2}px`;
+        target.style.top = `${(areaRect.height - target.offsetHeight) / 2}px`;
+        
+        targetText.textContent = '开始';
+        clicksRemainingDisplay.textContent = totalClicks;
+        resultDisplay.textContent = '';
+    }
+
+    function generateRounds() {
+        rounds = [
+            ...Array(20).fill(1),
+            ...Array(5).fill(2),
+            ...Array(4).fill(3),
+            ...Array(2).fill(5),
+            ...Array(1).fill(8)
+        ];
+        for (let i = rounds.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [rounds[i], rounds[j]] = [rounds[j], rounds[i]];
+        }
+    }
+
+    function startGame() {
+        gameState = 'playing';
+        clicksLeft = totalClicks;
+        positioningTimes = [];
+        cpsIntervals = [];
+        resultDisplay.textContent = '';
+        generateRounds();
+        nextRound();
+    }
+
+    function nextRound() {
+        if (rounds.length === 0) {
+            endGame();
+            return;
+        }
+
+        currentRoundClicksNeeded = rounds.shift();
+        currentRoundClicksDone = 0;
+        
+        targetText.textContent = currentRoundClicksNeeded;
+        moveTarget();
+        positioningStartTime = Date.now();
+    }
+    
+    function moveTarget() {
+        target.classList.remove('shrink');
+        target.classList.add('grow');
+        target.style.visibility = 'visible';
+        
+        const areaRect = aimArea.getBoundingClientRect();
+        const targetWidth = target.offsetWidth;
+        const targetHeight = target.offsetHeight;
+
+        const maxX = areaRect.width - targetWidth;
+        const maxY = areaRect.height - targetHeight;
+
+        const randomX = Math.max(0, Math.random() * maxX);
+        const randomY = Math.max(0, Math.random() * maxY);
+
+        target.style.left = `${randomX}px`;
+        target.style.top = `${randomY}px`;
+    }
+
+    function handleTargetClick() {
+        if (gameState === 'idle') {
+            startGame();
+            return;
+        }
+        if (gameState !== 'playing') return;
+        
+        target.classList.remove('grow');
+        target.classList.add('shrink');
+
+        if (currentRoundClicksDone === 0) {
+            const positioningTime = Date.now() - positioningStartTime;
+            positioningTimes.push(positioningTime);
+            if (currentRoundClicksNeeded > 1) {
+                cpsStartTime = Date.now();
+            }
+        } else {
+            const interval = Date.now() - cpsStartTime;
+            cpsIntervals.push(interval);
+            cpsStartTime = Date.now();
+        }
+
+        clicksLeft--;
+        clicksRemainingDisplay.textContent = clicksLeft;
+        currentRoundClicksDone++;
+
+        if (currentRoundClicksDone >= currentRoundClicksNeeded) {
+            // BUG修复: 使用 visibility 隐藏，而不是 display
+            target.style.visibility = 'hidden';
+            setTimeout(nextRound, 100);
+        } else {
+            targetText.textContent = currentRoundClicksNeeded - currentRoundClicksDone;
+            setTimeout(() => target.classList.remove('shrink'), 100);
+        }
+    }
+
+    function endGame() {
+        gameState = 'finished';
+        
+        const avgPositioningTime = positioningTimes.reduce((a, b) => a + b, 0) / positioningTimes.length;
+        const Z = 1000 / avgPositioningTime;
+
+        let Y = 0;
+        if (cpsIntervals.length > 0) {
+            const avgCpsInterval = cpsIntervals.reduce((a, b) => a + b, 0) / cpsIntervals.length;
+            Y = 1000 / avgCpsInterval;
+        } else {
+            Y = Z * 0.5; 
+        }
+
+        const finalScore = Z * Y * 20;
+
+        resultDisplay.textContent = `测试完成！你的分数: ${finalScore.toFixed(0)}`;
+        saveHistory(finalScore);
+        
+        setTimeout(setupInitialState, 2000);
+    }
+
+    // --- 事件监听 ---
+    target.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        handleTargetClick();
+    });
+
+    clearHistoryBtn.addEventListener('click', () => { confirmClearModal.style.display = 'flex'; });
+    cancelClearBtn.addEventListener('click', () => { confirmClearModal.style.display = 'none'; });
+    confirmClearBtn.addEventListener('click', clearHistory);
+
+    // --- 初始化 ---
+    loadHistory();
+    setupInitialState();
+});
+</script>
