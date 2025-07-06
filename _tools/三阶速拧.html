@@ -1,7 +1,7 @@
 ---
 layout: tool
-title: 三阶速拧计时
-permalink: /tool/三阶速拧计时/
+title: 三阶速拧
+permalink: /tool/三阶速拧/
 ---
 <h2 style="text-align: center; margin-bottom: 20px;">三阶速拧计时</h2>
 
@@ -230,6 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmClearModal = document.getElementById('confirmClearModal');
     const confirmClearBtn = document.getElementById('confirmClear');
     const cancelClearBtn = document.getElementById('cancelClear');
+    const historyContainer = document.getElementById('historyContainer'); // 获取历史记录容器
 
     let state = 'idle';
     let startTime = 0;
@@ -237,6 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let prepareTimeout;
     const PREPARE_DELAY = 500;
     let times = [];
+    let cookieConsentAgreed = false; // 新增：Cookie 同意状态
 
     /**
      * Helper function to determine the axis of a move.
@@ -297,16 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
         scrambleDisplay.textContent = scramble.join(' ');
     }
 
-    function setCookie(name, value, days) {
-        let expires = "";
-        if (days) {
-            const date = new Date();
-            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-            expires = "; expires=" + date.toUTCString();
-        }
-        document.cookie = name + "=" + (value || "")  + expires + "; path=/; SameSite=Lax";
-    }
-
+    // Helper function to get a cookie
     function getCookie(name) {
         const nameEQ = name + "=";
         const ca = document.cookie.split(';');
@@ -318,75 +311,89 @@ document.addEventListener('DOMContentLoaded', () => {
         return null;
     }
 
-    function checkCookieEnabled() {
-        setCookie('cookie_test', 'test', 1);
-        if (getCookie('cookie_test')) {
-            setCookie('cookie_test', '', -1);
-            return true;
+    // Helper function to set a cookie
+    function setCookie(name, value, days) {
+        let expires = "";
+        if (days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            expires = "; expires=" + date.toUTCString();
         }
-        return false;
+        document.cookie = name + "=" + (value || "")  + expires + "; path=/; SameSite=Lax";
     }
 
+    // Load history records and update display based on cookie consent
     function loadHistory() {
-        const cookieEnabled = checkCookieEnabled();
-        const historyData = getCookie('rubiks_times');
-        
-        if (historyData) {
-            try {
-                times = JSON.parse(historyData);
-                if (!Array.isArray(times)) times = [];
-            } catch (e) {
-                console.error("解析历史记录失败:", e);
+        if (cookieConsentAgreed) {
+            // If cookie consent is agreed, try to load history from cookie
+            const historyData = getCookie('rubiks_times');
+            if (historyData) {
+                try {
+                    times = JSON.parse(historyData);
+                    if (!Array.isArray(times)) times = [];
+                } catch (e) {
+                    console.error("Failed to parse history records:", e);
+                    times = [];
+                }
+            } else {
                 times = [];
             }
+            updateDisplay(); // Update display with loaded history
         } else {
-            times = [];
-        }
-
-        if (!cookieEnabled && times.length === 0) {
-            historyPlaceholder.textContent = '启用cookie以获得完整体验';
-            historyList.style.display = 'none';
-            historyPlaceholder.style.display = 'block';
-            clearHistoryBtn.style.display = 'none';
-        } else {
-            updateDisplay();
+            // If cookie consent is NOT agreed, display the prompt message
+            historyPlaceholder.textContent = '请同意cookie以启用此功能';
+            historyList.style.display = 'none'; // Hide the actual list
+            historyPlaceholder.style.display = 'block'; // Show the placeholder
+            clearHistoryBtn.style.display = 'none'; // Hide the clear history button
+            // Also clear stats display if cookie not agreed
+            ao3Display.textContent = '-';
+            ao5Display.textContent = '-';
+            totalAvgDisplay.textContent = '-';
         }
     }
 
+    // Save history records to cookie
     function saveHistory() {
-        if (checkCookieEnabled()) {
+        if (cookieConsentAgreed) {
             setCookie('rubiks_times', JSON.stringify(times), 365);
         }
         updateDisplay();
     }
     
+    // Format time to milliseconds
     function formatTime(ms) { return (ms / 1000).toFixed(3); }
 
+    // Update the history list and stats display
     function updateDisplay() {
-        if (times.length > 0) {
-            historyList.innerHTML = '';
-            times.forEach((record, index) => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <span>#${times.length - index}</span>
-                    <span class="time-score">${formatTime(record.time)}s</span>
-                    <span class="test-date">${new Date(record.date).toLocaleString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-                `;
-                historyList.appendChild(li);
-            });
-            historyList.style.display = 'block';
-            historyPlaceholder.style.display = 'none';
-            clearHistoryBtn.style.display = 'inline-block';
-        } else {
-            historyPlaceholder.textContent = '目前无记录';
-            historyList.innerHTML = '';
-            historyList.style.display = 'none';
-            historyPlaceholder.style.display = 'block';
-            clearHistoryBtn.style.display = 'none';
+        if (cookieConsentAgreed) { // Only update if cookie consent is agreed
+            if (times.length > 0) {
+                historyList.innerHTML = ''; // Clear existing list items
+                times.forEach((record, index) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <span>#${times.length - index}</span>
+                        <span class="time-score">${formatTime(record.time)}s</span>
+                        <span class="test-date">${new Date(record.date).toLocaleString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                    `;
+                    historyList.appendChild(li);
+                });
+                historyList.style.display = 'block'; // Show the list
+                historyPlaceholder.style.display = 'none'; // Hide the placeholder
+                clearHistoryBtn.style.display = 'inline-block'; // Show the clear button
+            } else {
+                historyPlaceholder.textContent = '目前无记录'; // No records message
+                historyList.innerHTML = ''; // Ensure list is empty
+                historyList.style.display = 'none'; // Hide the list
+                historyPlaceholder.style.display = 'block'; // Show the placeholder
+                clearHistoryBtn.style.display = 'none'; // Hide the clear button
+            }
+            calculateStats(); // Recalculate stats after display update
         }
-        calculateStats();
+        // If cookieConsentAgreed is false, loadHistory already handled the display.
+        // No need to do anything here.
     }
 
+    // Calculate and display statistics (Ao3, Ao5, Total Average)
     function calculateStats() {
         const validTimes = times.map(t => t.time);
         totalAvgDisplay.textContent = (validTimes.length > 0) ? formatTime(validTimes.reduce((a, b) => a + b, 0) / validTimes.length) : '-';
@@ -400,13 +407,17 @@ document.addEventListener('DOMContentLoaded', () => {
         } else { ao3Display.textContent = '-'; }
     }
 
+    // Clear all history records
     function clearHistory() {
-        times = [];
-        setCookie('rubiks_times', '', -1);
-        updateDisplay();
-        confirmClearModal.style.display = 'none';
+        if (cookieConsentAgreed) {
+            times = [];
+            setCookie('rubiks_times', '', -1); // Clear the cookie by setting expiry to past
+            updateDisplay(); // Update display after clearing
+        }
+        confirmClearModal.style.display = 'none'; // Hide the confirmation modal
     }
 
+    // Handle timer press event (mouse down or spacebar down)
     function handlePress() {
         if (state === 'timing') {
             stopTimer();
@@ -428,45 +439,52 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Handle timer release event (mouse up or spacebar up)
     function handleRelease() {
-        clearTimeout(prepareTimeout);
+        clearTimeout(prepareTimeout); // Clear any pending prepare timeout
         if (state === 'ready') {
             state = 'timing';
-            startTime = Date.now();
+            startTime = Date.now(); // Record start time
             timerArea.classList.remove('ready');
             timerArea.classList.add('timing');
             instructionDisplay.textContent = '计时中...';
             
+            // Update timer display every 50ms
             timerInterval = setInterval(() => {
                 timerDisplay.textContent = formatTime(Date.now() - startTime);
             }, 50);
         } else if (state === 'preparing') {
-            state = 'idle';
+            state = 'idle'; // Reset to idle if released too quickly
             instructionDisplay.textContent = '长按空格或点击方块准备';
         }
     }
 
+    // Stop the timer
     function stopTimer() {
         state = 'stopped';
-        clearInterval(timerInterval);
-        const elapsedTime = Date.now() - startTime;
+        clearInterval(timerInterval); // Stop the timer interval
+        const elapsedTime = Date.now() - startTime; // Calculate elapsed time
         
         timerDisplay.textContent = formatTime(elapsedTime);
         timerArea.classList.remove('timing');
         instructionDisplay.textContent = '长按空格或点击方块准备';
 
-        const newRecord = {
-            time: elapsedTime,
-            date: new Date().toISOString(),
-            scramble: scrambleDisplay.textContent
-        };
-        times.unshift(newRecord);
-        saveHistory();
-        generateScramble();
+        if (cookieConsentAgreed) { // Only record if cookie consent is agreed
+            const newRecord = {
+                time: elapsedTime,
+                date: new Date().toISOString(),
+                scramble: scrambleDisplay.textContent
+            };
+            times.unshift(newRecord); // Add new record to the beginning
+            saveHistory(); // Save updated history
+        }
+        generateScramble(); // Generate a new scramble for the next round
         
+        // Reset state to idle after a short delay
         setTimeout(() => { if(state === 'stopped') state = 'idle'; }, 200);
     }
 
+    // Event listeners
     timerArea.addEventListener('mousedown', handlePress);
     document.addEventListener('mouseup', handleRelease);
     document.addEventListener('touchstart', (e) => { if(e.target === timerArea) handlePress(); });
@@ -474,15 +492,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('keydown', (e) => {
         if (e.code === 'Space') {
-            e.preventDefault();
+            e.preventDefault(); // Prevent default spacebar action (e.g., scrolling)
         }
-        if (e.code === 'Space' && !e.repeat) {
+        if (e.code === 'Space' && !e.repeat) { // Only trigger on initial keydown
             handlePress();
         }
     });
     document.addEventListener('keyup', (e) => {
         if (e.code === 'Space') {
-            e.preventDefault();
+            e.preventDefault(); // Prevent default spacebar action
             handleRelease();
         }
     });
@@ -492,11 +510,28 @@ document.addEventListener('DOMContentLoaded', () => {
     cancelClearBtn.addEventListener('click', () => { confirmClearModal.style.display = 'none'; });
     confirmClearBtn.addEventListener('click', clearHistory);
 
+    // Initialize the application
     function initializeApp() {
-        generateScramble();
-        loadHistory();
+        // Check initial cookie_consent status
+        const consent = getCookie('cookie_consent');
+        cookieConsentAgreed = (consent === 'agreed'); // Set the global flag
+        loadHistory(); // Load history based on the initial consent status
+        generateScramble(); // Generate initial scramble
     }
 
+    // Listen for cookieConsent event (triggered by external cookie consent logic)
+    document.addEventListener('cookieConsent', (event) => {
+        if (event.detail.consent === 'agreed') {
+            cookieConsentAgreed = true;
+            loadHistory(); // Reload history if consent is given
+        } else {
+            cookieConsentAgreed = false;
+            times = []; // Clear data in memory if consent is revoked
+            loadHistory(); // Update display to show prompt if consent is revoked
+        }
+    });
+
+    // Run initialization when DOM is fully loaded
     initializeApp();
 });
 </script>

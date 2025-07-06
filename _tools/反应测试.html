@@ -332,6 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let startTime = 0;
     let reactionTimeout;
     let reactionTimes = [];
+    let cookieConsentAgreed = false; // New variable to track cookie consent
 
     // --- Cookie Operations ---
     function setCookie(name, value, days) {
@@ -355,45 +356,41 @@ document.addEventListener('DOMContentLoaded', () => {
         return null;
     }
 
-    function checkCookieEnabled() {
-        setCookie('cookie_test_reaction', 'test', 1);
-        if (getCookie('cookie_test_reaction')) {
-            setCookie('cookie_test_reaction', '', -1); // Clear test cookie
-            return true;
-        }
-        return false;
-    }
-
     // --- History Operations ---
     function loadHistory() {
-        const cookieEnabled = checkCookieEnabled();
-        const historyData = getCookie('reaction_history');
+        const consent = getCookie('cookie_consent');
+        cookieConsentAgreed = (consent === 'agreed'); // Update consent status
 
-        if (historyData) {
-            try {
-                reactionTimes = JSON.parse(historyData);
-                if (!Array.isArray(reactionTimes)) reactionTimes = [];
-            } catch (e) {
-                console.error("Failed to parse history records:", e);
+        if (cookieConsentAgreed) {
+            const historyData = getCookie('reaction_history');
+            if (historyData) {
+                try {
+                    reactionTimes = JSON.parse(historyData);
+                    if (!Array.isArray(reactionTimes)) reactionTimes = [];
+                } catch (e) {
+                    console.error("Failed to parse history records:", e);
+                    reactionTimes = [];
+                }
+            } else {
                 reactionTimes = [];
             }
+            updateHistoryDisplay();
         } else {
-            reactionTimes = [];
-        }
-
-        if (!cookieEnabled && reactionTimes.length === 0) {
+            // If cookie consent is not agreed, clear existing history and display message
+            reactionTimes = []; // Clear in-memory history
             historyPlaceholder.textContent = '请同意cookie以启用此功能';
             historyList.style.display = 'none';
             historyPlaceholder.style.display = 'block';
             clearHistoryBtn.style.display = 'none';
-        } else {
-            updateHistoryDisplay();
+            // Also, ensure no history is saved to cookie if consent is revoked
+            setCookie('reaction_history', '', -1); 
+            calculateStats(); // Recalculate stats with empty history
         }
     }
 
     function saveHistory(time) {
-        // Only save if cookie is enabled and time is valid (not 0 for early clicks)
-        if (checkCookieEnabled() && time > 0) {
+        // Only save if cookie consent is agreed and time is valid (not 0 for early clicks)
+        if (cookieConsentAgreed && time > 0) {
             const newRecord = {
                 time: time,
                 date: new Date().toISOString()
@@ -546,11 +543,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     confirmClearBtn.addEventListener('click', clearHistory);
 
-    // Listen for cookie consent event, if user agreed, reload history
+    // Listen for cookie consent event, if user agreed or disagreed, reload history
     document.addEventListener('cookieConsent', (event) => {
-        if (event.detail.consent === 'agreed') {
-            loadHistory();
-        }
+        // Update the cookieConsentAgreed variable based on the event detail
+        cookieConsentAgreed = (event.detail.consent === 'agreed');
+        loadHistory(); // Reload history based on new consent status
     });
 
     // --- Initialization ---

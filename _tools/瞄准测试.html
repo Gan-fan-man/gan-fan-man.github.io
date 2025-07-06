@@ -210,6 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ao3Display = document.getElementById('ao3Display');
     const ao5Display = document.getElementById('ao5Display');
     const totalAvgDisplay = document.getElementById('totalAvgDisplay');
+    const historyContainer = document.getElementById('historyContainer'); 
 
     // 游戏状态变量
     let gameState = 'idle'; // idle, playing, finished
@@ -248,98 +249,107 @@ document.addEventListener('DOMContentLoaded', () => {
         return null;
     }
     
-    function checkCookieEnabled() {
-        setCookie('cookie_test_aim', 'test', 1);
-        if (getCookie('cookie_test_aim')) {
-            setCookie('cookie_test_aim', '', -1);
-            return true;
-        }
-        return false;
-    }
-
     // --- 历史记录和统计 ---
     function loadHistory() {
-        const cookieEnabled = checkCookieEnabled();
-        const historyData = getCookie('aim_history');
-        if (historyData) {
-            try {
-                scores = JSON.parse(historyData);
-                if (!Array.isArray(scores)) scores = [];
-            } catch (e) {
-                console.error("解析历史记录失败:", e);
+        if (getCookie('cookie_consent') === 'agreed') {
+            const historyData = getCookie('aim_history');
+            if (historyData) {
+                try {
+                    scores = JSON.parse(historyData);
+                    if (!Array.isArray(scores)) scores = [];
+                } catch (e) {
+                    console.error("解析历史记录失败:", e);
+                    scores = [];
+                }
+            } else {
                 scores = [];
             }
+            updateHistoryDisplay();
+            calculateStats(); // 确保统计数据也加载
         } else {
-            scores = [];
+            // 用户不同意cookie时，显示提示信息，并清空统计数据
+            historyContainer.innerHTML = '<p style="text-align: center;">请同意cookie以启用此功能</p>';
+            ao3Display.textContent = '-';
+            ao5Display.textContent = '-';
+            totalAvgDisplay.textContent = '-';
+            clearHistoryBtn.style.display = 'none'; // 确保清除按钮不显示
         }
-
-        if (!cookieEnabled && scores.length === 0) {
-            historyPlaceholder.textContent = '启用cookie以获得完整体验';
-        }
-        updateHistoryDisplay();
     }
     
     function saveHistory(score) {
-        if (checkCookieEnabled() && score > 0) {
+        if (getCookie('cookie_consent') === 'agreed' && score > 0) {
             const newRecord = { score: score, date: new Date().toISOString() };
             scores.unshift(newRecord);
-            if (scores.length > 50) scores.pop();
+            if (scores.length > 50) scores.pop(); // 只保留最新的50条记录
             setCookie('aim_history', JSON.stringify(scores), 365);
         }
         updateHistoryDisplay();
+        calculateStats(); // 保存历史后更新统计
     }
 
     function updateHistoryDisplay() {
-        if (scores.length > 0) {
-            historyList.innerHTML = '';
-            scores.forEach((record, index) => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <span>#${scores.length - index}</span>
-                    <span class="score">${record.score.toFixed(0)} 分</span>
-                    <span class="test-date">${new Date(record.date).toLocaleString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-                `;
-                historyList.appendChild(li);
-            });
-            historyList.style.display = 'block';
-            historyPlaceholder.style.display = 'none';
-            clearHistoryBtn.style.display = 'inline-block';
-        } else {
-            historyPlaceholder.textContent = '目前无记录';
-            historyList.style.display = 'none';
-            clearHistoryBtn.style.display = 'none';
+        if (getCookie('cookie_consent') === 'agreed') { // 只有同意cookie才更新历史显示
+            if (scores.length > 0) {
+                historyList.innerHTML = '';
+                scores.forEach((record, index) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <span>#${scores.length - index}</span>
+                        <span class="score">${record.score.toFixed(0)} 分</span>
+                        <span class="test-date">${new Date(record.date).toLocaleString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                    `;
+                    historyList.appendChild(li);
+                });
+                historyList.style.display = 'block';
+                historyPlaceholder.style.display = 'none';
+                clearHistoryBtn.style.display = 'inline-block';
+            } else {
+                historyPlaceholder.textContent = '目前无记录';
+                historyList.style.display = 'none';
+                clearHistoryBtn.style.display = 'none';
+            }
         }
-        calculateStats();
+        // 如果不同意cookie，loadHistory已经设置了提示，这里不再重复操作historyContainer
     }
 
     function calculateStats() {
-        const validScores = scores.map(s => s.score).filter(score => score > 0);
-        
-        totalAvgDisplay.textContent = validScores.length > 0 ? (validScores.reduce((a, b) => a + b, 0) / validScores.length).toFixed(0) : '-';
+        if (getCookie('cookie_consent') === 'agreed') {
+            const validScores = scores.map(s => s.score).filter(score => score > 0);
+            
+            totalAvgDisplay.textContent = validScores.length > 0 ? (validScores.reduce((a, b) => a + b, 0) / validScores.length).toFixed(0) : '-';
 
-        if (validScores.length >= 5) {
-            const last5 = validScores.slice(0, 5);
-            ao5Display.textContent = (last5.reduce((a, b) => a + b, 0) / 5).toFixed(0);
-        } else {
-            ao5Display.textContent = '-';
-        }
+            if (validScores.length >= 5) {
+                const last5 = validScores.slice(0, 5);
+                ao5Display.textContent = (last5.reduce((a, b) => a + b, 0) / 5).toFixed(0);
+            } else {
+                ao5Display.textContent = '-';
+            }
 
-        if (validScores.length >= 3) {
-            const best3 = [...validScores].sort((a, b) => b - a).slice(0, 3);
-            ao3Display.textContent = (best3.reduce((a, b) => a + b, 0) / 3).toFixed(0);
+            if (validScores.length >= 3) {
+                const best3 = [...validScores].sort((a, b) => b - a).slice(0, 3);
+                ao3Display.textContent = (best3.reduce((a, b) => a + b, 0) / 3).toFixed(0);
+            } else {
+                ao3Display.textContent = '-';
+            }
         } else {
+            // 不同意cookie时，只清空统计数据显示，不改变historyContainer的innerHTML
             ao3Display.textContent = '-';
+            ao5Display.textContent = '-';
+            totalAvgDisplay.textContent = '-';
         }
     }
 
     function clearHistory() {
-        scores = [];
-        setCookie('aim_history', '', -1);
-        updateHistoryDisplay();
-        confirmClearModal.style.display = 'none';
+        if (getCookie('cookie_consent') === 'agreed') {
+            scores = [];
+            setCookie('aim_history', '', -1); // 删除cookie
+            updateHistoryDisplay();
+            calculateStats(); // 清除历史后更新统计
+            confirmClearModal.style.display = 'none';
+        }
     }
 
-    // --- 游戏核心逻辑 ---
+    // --- 游戏核心逻辑 (保持不变) ---
     function setupInitialState() {
         gameState = 'idle';
         target.style.visibility = 'visible';
@@ -458,7 +468,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const avgCpsInterval = cpsIntervals.reduce((a, b) => a + b, 0) / cpsIntervals.length;
             Y = 1000 / avgCpsInterval;
         } else {
-            Y = Z * 0.5; 
+            Y = Z * 0.5; // 如果没有CPS数据，则给一个默认值
         }
 
         const finalScore = Z * Y * 20;
@@ -466,7 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resultDisplay.textContent = `测试完成！你的分数: ${finalScore.toFixed(0)}`;
         saveHistory(finalScore);
         
-        setTimeout(setupInitialState, 2000);
+        setTimeout(setupInitialState, 5000);
     }
 
     // --- 事件监听 ---
@@ -479,8 +489,22 @@ document.addEventListener('DOMContentLoaded', () => {
     cancelClearBtn.addEventListener('click', () => { confirmClearModal.style.display = 'none'; });
     confirmClearBtn.addEventListener('click', clearHistory);
 
+    // 监听 cookieConsent 事件
+    document.addEventListener('cookieConsent', (event) => {
+        if (event.detail.consent === 'agreed') {
+            loadHistory(); // 如果同意，重新加载历史记录
+        } else {
+            // 如果不同意，只在historyContainer显示提示，并清空统计数据
+            historyContainer.innerHTML = '<p style="text-align: center;">请同意cookie以启用此功能</p>';
+            ao3Display.textContent = '-';
+            ao5Display.textContent = '-';
+            totalAvgDisplay.textContent = '-';
+            clearHistoryBtn.style.display = 'none'; // 确保清除按钮不显示
+        }
+    });
+
     // --- 初始化 ---
-    loadHistory();
+    loadHistory(); // 页面初始化时加载历史记录和设置
     setupInitialState();
 });
 </script>
