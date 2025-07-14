@@ -4,6 +4,8 @@ url: https://gan-fan-man.github.io
 baseurl: /
 avatar: avatar.jpeg
 cover_image: bg.jpeg
+encoding: utf-8
+markdown: kramdown
 
 pagination:
   enabled: true
@@ -12,12 +14,12 @@ pagination:
   sort_reverse: true
 
 plugins:
+  - jemoji
   - jekyll-gist
   - jekyll-paginate-v2
   - jekyll-seo-tag
   - jekyll-feed
   - jekyll-sitemap
-  - jemoji
 
 exclude:
   - '.editorconfig'
